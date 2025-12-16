@@ -488,4 +488,27 @@ img{max-width:100%;display:block}
   .upload-btn{width:100%;justify-content:center}
   .upload-input{min-width:0;width:100%}
   #memoryUploadBtn{width:100%}
+
+  /* Member modal: keep panel inside viewport and scroll content */
+  #memberModal .overlay__panel{
+    margin: 14px auto;
+    max-height: calc(100vh - 28px);
+    overflow: hidden;
+  }
+  #memberModal .overlay__content{
+    grid-template-columns: 1fr;
+    max-height: calc(100vh - 28px);
+    overflow: auto;
+    -webkit-overflow-scrolling: touch;
+  }
+  #memberModal .overlay__media{
+    border-right:none;
+    border-bottom:1px solid rgba(30,36,29,0.10);
+  }
+  #memberModal .overlay__media img{
+    height: 240px;
+    object-fit: cover;
+  }
+  #memberModal .overlay__body{padding:18px}
+  #memberModal .overlay__close{position:sticky;top:10px;right:10px;float:right}
 }
