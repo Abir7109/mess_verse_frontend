@@ -418,10 +418,18 @@ img{max-width:100%;display:block}
 
 /* Luxury scaled photo view in lightbox */
 #lightbox .overlay__panel{width:min(1100px, calc(100% - 24px))}
-#lightbox .overlay__media{background: rgba(20,22,20,0.86)}
+#lightbox .overlay__media{
+  background: rgba(20,22,20,0.86);
+  display:flex;
+  align-items:center;
+  justify-content:center;
+}
 #lightboxImg{
+  display:block;
   width:100%;
-  height: min(72vh, 720px);
+  max-width: 100%;
+  height:auto;
+  max-height: min(72vh, 720px);
   object-fit: contain;
   background:
     radial-gradient(900px 520px at 50% 15%, rgba(255,162,57,0.16), transparent 60%),
@@ -488,6 +496,19 @@ img{max-width:100%;display:block}
   .upload-btn{width:100%;justify-content:center}
   .upload-input{min-width:0;width:100%}
   #memoryUploadBtn{width:100%}
+
+  /* Lightbox: keep it inside viewport on mobile */
+  #lightbox .overlay__panel{
+    margin: 14px auto;
+    max-height: calc(100vh - 28px);
+    overflow:hidden;
+  }
+  #lightbox .overlay__content{
+    max-height: calc(100vh - 28px);
+  }
+  #lightboxImg{
+    max-height: calc(100vh - 170px);
+  }
 
   /* Member modal: keep panel inside viewport and scroll content */
   #memberModal .overlay__panel{
