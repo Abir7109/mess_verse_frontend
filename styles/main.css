@@ -10,6 +10,7 @@ body{
   position:relative;
   min-height:100%;
   isolation:isolate;
+  overflow-x:hidden; /* prevent accidental horizontal scroll on mobile */
 
   /* Base (kept simple) */
   background:
@@ -479,4 +480,12 @@ img{max-width:100%;display:block}
 
   /* Members collapse control only on small screens */
   .members-toggle{display:inline-flex}
+
+  /* Upload UI: avoid min-width overflow, stack nicely */
+  .upload-bar{padding:12px}
+  .upload-bar__left{width:100%}
+  .upload-bar__form{width:100%}
+  .upload-btn{width:100%;justify-content:center}
+  .upload-input{min-width:0;width:100%}
+  #memoryUploadBtn{width:100%}
 }
