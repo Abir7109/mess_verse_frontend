@@ -150,29 +150,36 @@
     return String(label || '').trim().toLowerCase();
   }
 
-  function pickEmojiForTag(tag){
+  function getEmojiPoolForTag(tag){
     // Allow per-tag override in data:
     // { label: 'Creator', emojis: ['🧑‍💻','✨'] }
     const custom = Array.isArray(tag?.emojis) ? tag.emojis : (typeof tag?.emoji === 'string' ? [tag.emoji] : null);
     const label = normalizeTagLabel(tag?.label);
-    const pool = (custom && custom.length) ? custom : (TAG_EMOJI_MAP[label] || ['✨','🪄','⭐']);
+    return (custom && custom.length) ? custom : (TAG_EMOJI_MAP[label] || ['✨','🪄','⭐']);
+  }
+
+  function pickEmojiForTag(tag){
+    const pool = getEmojiPoolForTag(tag);
     return pool[Math.floor(Math.random() * pool.length)];
   }
 
-  function spawnEmojiBurst(anchorEl, emoji){
+  function spawnTagBurst(anchorEl, tag){
     const r = anchorEl.getBoundingClientRect();
     const baseX = r.left + r.width/2;
     const baseY = r.top + r.height/2;
 
-    const count = prefersReducedMotion ? 1 : 6;
+    // More “fun” = mixture of tiny emoji particles + 1-2 sticker-like pops
+    const emojiCount = prefersReducedMotion ? 1 : 8;
+    const stickerCount = prefersReducedMotion ? 0 : 2;
 
-    for(let i=0;i<count;i++){
+    const pool = getEmojiPoolForTag(tag);
+
+    const spawn = (kind)=>{
       const el = document.createElement('span');
-      el.className = 'emoji-pop';
-      el.textContent = emoji;
+      el.className = kind === 'sticker' ? 'sticker-pop' : 'emoji-pop';
+      el.textContent = pool[Math.floor(Math.random() * pool.length)];
       el.style.left = `${baseX}px`;
       el.style.top = `${baseY}px`;
-
       document.body.appendChild(el);
 
       if(prefersReducedMotion){
@@ -180,19 +187,25 @@
           { transform: 'translate(-50%, -50%) scale(1)', opacity: 1 },
           { transform: 'translate(-50%, -78%) scale(1)', opacity: 0 }
         ], { duration: 520, easing: 'ease-out', fill: 'forwards' }).finished.finally(()=>el.remove());
-        continue;
+        return;
       }
 
-      const dx = (Math.random()-0.5) * 90;
-      const dy = - (40 + Math.random()*70);
-      const rot = (Math.random()-0.5) * 40;
-      const dur = 650 + Math.random()*250;
+      const dx = (Math.random()-0.5) * (kind === 'sticker' ? 120 : 90);
+      const dy = - (kind === 'sticker' ? (60 + Math.random()*110) : (40 + Math.random()*70));
+      const rot = (Math.random()-0.5) * (kind === 'sticker' ? 90 : 40);
+      const dur = (kind === 'sticker' ? 820 : 650) + Math.random()*250;
+      const scale0 = kind === 'sticker' ? 0.85 : 0.9;
+      const scale1 = kind === 'sticker' ? 1.05 : 1.05;
+
       el.animate([
-        { transform: 'translate(-50%, -50%) scale(0.9) rotate(0deg)', opacity: 0.0 },
-        { transform: 'translate(-50%, -50%) scale(1.05) rotate(0deg)', opacity: 1.0, offset: 0.12 },
+        { transform: `translate(-50%, -50%) scale(${scale0}) rotate(0deg)`, opacity: 0.0 },
+        { transform: `translate(-50%, -50%) scale(${scale1}) rotate(0deg)`, opacity: 1.0, offset: 0.12 },
         { transform: `translate(calc(-50% + ${dx}px), calc(-50% + ${dy}px)) scale(1) rotate(${rot}deg)`, opacity: 0.0 }
       ], { duration: dur, easing: 'cubic-bezier(0.22,1,0.36,1)', fill: 'forwards' }).finished.finally(()=>el.remove());
-    }
+    };
+
+    for(let i=0;i<emojiCount;i++) spawn('emoji');
+    for(let i=0;i<stickerCount;i++) spawn('sticker');
   }
 
   function openMember(m){
@@ -215,11 +228,10 @@
       btn.type = 'button';
       btn.className = `tag tag-btn ${t.isAccent? 'tag--accent':''}`;
       btn.textContent = t.label;
-      btn.setAttribute('aria-label', `Tag: ${t.label}. Tap for an emoji.`);
+      btn.setAttribute('aria-label', `Tag: ${t.label}. Tap for a fun burst.`);
 
       btn.addEventListener('click', ()=>{
-        const emoji = pickEmojiForTag(t);
-        spawnEmojiBurst(btn, emoji);
+        spawnTagBurst(btn, t);
       });
 
       memberTags.appendChild(btn);

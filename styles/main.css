@@ -271,6 +271,24 @@ img{max-width:100%;display:block}
   filter: drop-shadow(0 10px 14px rgba(30,36,29,0.22));
 }
 
+/* Bigger sticker-like pops (still emoji text, but styled like a sticker) */
+.sticker-pop{
+  position:fixed;
+  left:0;
+  top:0;
+  transform: translate(-50%, -50%);
+  font-size:30px;
+  z-index: 4000;
+  pointer-events:none;
+  padding:10px 12px;
+  border-radius:18px;
+  border:1px solid rgba(30,36,29,0.12);
+  background: rgba(255,255,255,0.70);
+  box-shadow:
+    0 18px 28px rgba(0,0,0,0.14),
+    0 2px 0 rgba(255,255,255,0.55) inset;
+}
+
 /* Timeline */
 .timeline{margin-top:26px;display:grid;gap:14px}
 .tl-item{padding:18px 18px 18px 16px;display:grid;grid-template-columns: 110px 1fr;gap:14px}
