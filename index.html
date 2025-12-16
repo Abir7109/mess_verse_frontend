@@ -1,0 +1,138 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="color-scheme" content="dark light" />
+  <meta name="theme-color" content="#005461" />
+  <title>MessVerse — Identity Tapestry</title>
+  <meta name="description" content="MessVerse: a modern, identity-driven digital space for our mess members." />
+  <link rel="manifest" href="manifest.webmanifest">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;600;700&family=Lora:wght@400;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="styles/tokens.css" />
+  <link rel="stylesheet" href="styles/main.css" />
+</head>
+<body>
+  <a class="skip-link" href="#members">Skip to content</a>
+  <header id="hero" class="hero section">
+    <div class="nav-placeholder" aria-hidden="true"></div>
+    <div class="hero__inner">
+      <h1 class="tagline" data-reveal>
+        <span class="line1">Together, we live.</span>
+        <span class="line2">Together, we thrive.</span>
+      </h1>
+      <div id="mosaic" class="mosaic" aria-label="Members mosaic" data-reveal></div>
+      <button id="ctaMeet" class="cta" data-role="cta">Meet the members</button>
+    </div>
+  </header>
+
+  <section id="manifesto" class="manifesto section" data-reveal>
+    <div class="manifesto__ink" aria-hidden="true"></div>
+    <div class="manifesto__text">
+      <p><strong>Identity</strong> in motion. <em>Stories</em> in layers. <span class="hi">Cyan</span> threads connect us.</p>
+      <p>One mess. Ten voices. Infinite memories.</p>
+    </div>
+  </section>
+
+  <section id="members" class="members section" aria-label="Identity Showcase">
+    <div class="band band--A" data-reveal>
+      <h2 class="visually-hidden">Members</h2>
+      <div id="bandA" class="band__inner left-leading"></div>
+    </div>
+    <div class="band band--B" data-reveal>
+      <div id="bandB" class="band__inner right-leading"></div>
+    </div>
+    <div class="band band--C" data-reveal>
+      <div id="bandC" class="band__inner left-leading"></div>
+    </div>
+    <div class="band band--D" data-reveal>
+      <div id="bandD" class="band__inner center-leading"></div>
+    </div>
+  </section>
+
+  <section id="gallery" class="gallery section" data-reveal>
+    <div class="filmstrip" aria-label="Candid moments"></div>
+  </section>
+
+  <section id="timeline" class="timeline section" aria-label="Identity Timeline" tabindex="0">
+    <svg class="timeline__svg" viewBox="0 0 1000 240" role="img" aria-labelledby="timelineTitle">
+      <title id="timelineTitle">Shared journey timeline</title>
+      <path id="timelinePath" class="timeline__path" d="M40 180 C 220 60, 380 300, 520 120 C 700 -20, 860 300, 960 100" />
+      <g id="timelineNodes" class="timeline__nodes" role="list"></g>
+    </svg>
+    <div id="timelineTooltip" class="timeline__tooltip" role="status" aria-live="polite" hidden></div>
+  </section>
+
+  <section id="quotes" class="quotes section" aria-label="Interactive Quotes">
+    <div class="quotes__field" id="quotesField" data-reveal></div>
+    <div class="quotes__controls">
+      <button id="btnShuffle" class="btn">Shuffle quotes</button>
+    </div>
+  </section>
+
+  <section id="group" class="group section" data-reveal>
+    <div class="group__img" aria-hidden="true">
+      <svg class="group__threads" viewBox="0 0 1000 220" preserveAspectRatio="xMidYMid slice"></svg>
+    </div>
+    <p class="group__motto"><strong>We</strong> carry each other forward.</p>
+  </section>
+
+  <section id="cta" class="cta-section section" data-reveal>
+    <button class="cta big" data-role="cta-primary">Pull up a chair</button>
+  </section>
+
+  <footer class="footer section">
+    <div class="footer__inner">
+      <nav class="footer__nav">
+        <a href="#hero">Home</a>
+        <a href="#members">Members</a>
+        <a href="#timeline">Timeline</a>
+        <a href="#quotes">Quotes</a>
+      </nav>
+      <p class="credit">MessVerse · Built for the crew</p>
+    </div>
+  </footer>
+
+  <div class="controls" id="controls">
+    <button id="btnControls" class="controls__fab" aria-expanded="false" aria-controls="controlsPanel" title="Preferences">⚙</button>
+    <div id="controlsPanel" class="controls__panel" hidden>
+      <div class="controls__row">
+        <label><input type="checkbox" id="toggleMotion"> Reduce motion</label>
+      </div>
+      <div class="controls__row">
+        <label><input type="checkbox" id="toggleContrast"> High contrast</label>
+      </div>
+      <div class="controls__row">
+        <label>Type size
+          <select id="selectType">
+            <option value="normal">Normal</option>
+            <option value="large">Large</option>
+          </select>
+        </label>
+      </div>
+    </div>
+  </div>
+
+  <!-- Embedded data -->
+  <script id="members-data" type="application/json">{
+    "members": [
+      {"id":"m01","name":"Abir","alias":null,"role":"website creator","accent":"neon_line","accentIcon":"code","colorBias":"cyan","band":"A","mosaic":{"row":1,"pos":1,"tiltDeg":-4},"quote":"I debug life like code."},
+      {"id":"m02","name":"Akanto","alias":null,"role":"gamer","accent":"blob","accentIcon":"gamepad","colorBias":"cyan","band":"A","mosaic":{"row":1,"pos":2,"tiltDeg":2},"quote":"GGs only."},
+      {"id":"m03","name":"Junayed","alias":null,"role":"strategist","accent":"icon","accentIcon":"book","colorBias":"teal","band":"A","mosaic":{"row":1,"pos":3,"tiltDeg":-2},"quote":"Plan twice, move once."},
+      {"id":"m04","name":"Khaled","alias":null,"role":"naughty","accent":"neon_line","accentIcon":"bolt","colorBias":"cyan","band":"B","mosaic":{"row":2,"pos":1,"tiltDeg":3},"quote":"Chaos is my spice."},
+      {"id":"m05","name":"Mita","alias":"Abir","i18n":{"bn":"মিতা"},"role":"","accent":"blob","accentIcon":"music","colorBias":"cyan","band":"B","mosaic":{"row":2,"pos":2,"tiltDeg":-1},"quote":"নরম সুরে কথা বলি।"},
+      {"id":"m06","name":"Maruf","alias":null,"role":"matrivhumiyan","accent":"icon","accentIcon":"leaf","colorBias":"teal","band":"B","mosaic":{"row":2,"pos":3,"tiltDeg":2},"quote":"Roots run deep."},
+      {"id":"m07","name":"Anas","alias":null,"role":"mafia","accent":"neon_line","accentIcon":"flame","colorBias":"cyan","band":"C","mosaic":{"row":2,"pos":4,"tiltDeg":-3},"quote":"Silent moves."},
+      {"id":"m08","name":"Tanvir","alias":null,"role":"innocent guy","accent":"blob","accentIcon":"wave","colorBias":"teal","band":"C","mosaic":{"row":3,"pos":1,"tiltDeg":-2},"quote":"Kindness first."},
+      {"id":"m09","name":"TBD","alias":null,"role":"","accent":"icon","accentIcon":"camera","colorBias":"cyan","band":"C","mosaic":{"row":3,"pos":2,"tiltDeg":1},"quote":"Ready for close-up."},
+      {"id":"m10","name":"TBD","alias":null,"role":"","accent":"neon_line","accentIcon":"star","colorBias":"cyan","band":"D","mosaic":{"row":3,"pos":3,"tiltDeg":-4},"quote":"Shining soon."}
+    ],
+    "quotesInitialShow":["m01","m02","m03","m04","m05","m06"],
+    "quotesShufflePool":["m07","m08","m09","m10"]
+  }</script>
+
+  <script src="scripts/main.js" defer></script>
+</body>
+</html>
