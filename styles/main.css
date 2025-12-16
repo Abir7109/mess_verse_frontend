@@ -500,6 +500,13 @@ img{max-width:100%;display:block}
     max-height: calc(100vh - 28px);
     overflow: auto;
     -webkit-overflow-scrolling: touch;
+
+    /* Keep it scrollable but hide the scrollbar (avoid right-side layout shift) */
+    scrollbar-width: none; /* Firefox */
+  }
+  #memberModal .overlay__content::-webkit-scrollbar{
+    width: 0;
+    height: 0;
   }
   #memberModal .overlay__media{
     border-right:none;
