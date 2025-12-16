@@ -1,136 +1,415 @@
-<!doctype html>
+﻿<!doctype html>
 <html lang="en">
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <meta name="color-scheme" content="dark light" />
-  <meta name="theme-color" content="#005461" />
-  <title>MessVerse — Identity Tapestry</title>
-  <meta name="description" content="MessVerse: a modern, identity-driven digital space for our mess members." />
-  <link rel="manifest" href="manifest.webmanifest">
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;600;700&family=Lora:wght@400;600&display=swap" rel="stylesheet">
+  <meta name="color-scheme" content="light" />
+  <meta name="theme-color" content="#97A87A" />
+  <title>MessVerse — Our Japanese Journey</title>
+  <meta name="description" content="MessVerse is our mess story since August 2025 — built around identity, friendship, and the goal of going to Japan." />
+
+  <link rel="manifest" href="manifest.webmanifest" />
+
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Playfair+Display:wght@600;700&display=swap" rel="stylesheet" />
+
   <link rel="stylesheet" href="styles/tokens.css" />
   <link rel="stylesheet" href="styles/main.css" />
 </head>
 <body>
-  <a class="skip-link" href="#members">Skip to content</a>
-  <header id="hero" class="hero section">
-    <div class="nav-placeholder" aria-hidden="true"></div>
-    <div class="hero__inner">
-      <h1 class="tagline" data-reveal>
-        <span class="line1">Together, we live.</span>
-        <span class="line2">Together, we thrive.</span>
-      </h1>
-      <div id="mosaic" class="mosaic" aria-label="Members mosaic" data-reveal></div>
-      <button id="ctaMeet" class="cta" data-role="cta">Meet the members</button>
-    </div>
-  </header>
+  <a class="skip-link" href="#story">Skip to content</a>
 
-  <section id="manifesto" class="manifesto section" data-reveal>
-    <div class="manifesto__ink" aria-hidden="true"></div>
-    <div class="manifesto__text">
-      <p><strong>Identity</strong> in motion. <em>Stories</em> in layers. <span class="hi">Cyan</span> threads connect us.</p>
-      <p>One mess. Ten voices. Infinite memories.</p>
-    </div>
-  </section>
+  <div class="topbar">
+    <div class="container nav">
+      <a class="brand" href="#top" aria-label="MessVerse home">
+        <img class="brand__mark" src="assets/logo.svg" alt="MessVerse" width="36" height="36" />
+        <span class="brand__name">MessVerse</span>
+      </a>
 
-  <section id="members" class="members section" aria-label="Identity Showcase">
-    <div class="band band--A" data-reveal>
-      <h2 class="visually-hidden">Members</h2>
-      <div id="bandA" class="band__inner left-leading"></div>
-    </div>
-    <div class="band band--B" data-reveal>
-      <div id="bandB" class="band__inner right-leading"></div>
-    </div>
-    <div class="band band--C" data-reveal>
-      <div id="bandC" class="band__inner left-leading"></div>
-    </div>
-    <div class="band band--D" data-reveal>
-      <div id="bandD" class="band__inner center-leading"></div>
-    </div>
-  </section>
-
-  <section id="gallery" class="gallery section" data-reveal>
-    <div class="filmstrip" aria-label="Candid moments"></div>
-  </section>
-
-  <section id="timeline" class="timeline section" aria-label="Identity Timeline" tabindex="0">
-    <svg class="timeline__svg" viewBox="0 0 1000 240" role="img" aria-labelledby="timelineTitle">
-      <title id="timelineTitle">Shared journey timeline</title>
-      <path id="timelinePath" class="timeline__path" d="M40 180 C 220 60, 380 300, 520 120 C 700 -20, 860 300, 960 100" />
-      <g id="timelineNodes" class="timeline__nodes" role="list"></g>
-    </svg>
-    <div id="timelineTooltip" class="timeline__tooltip" role="status" aria-live="polite" hidden></div>
-  </section>
-
-  <section id="quotes" class="quotes section" aria-label="Interactive Quotes">
-    <div class="quotes__field" id="quotesField" data-reveal></div>
-    <div class="quotes__controls">
-      <button id="btnShuffle" class="btn">Shuffle quotes</button>
-    </div>
-  </section>
-
-  <section id="group" class="group section" data-reveal>
-    <div class="group__img" aria-hidden="true">
-      <svg class="group__threads" viewBox="0 0 1000 220" preserveAspectRatio="xMidYMid slice"></svg>
-    </div>
-    <p class="group__motto"><strong>We</strong> carry each other forward.</p>
-  </section>
-
-  <section id="cta" class="cta-section section" data-reveal>
-    <button class="cta big" data-role="cta-primary">Pull up a chair</button>
-  </section>
-
-  <footer class="footer section">
-    <div class="footer__inner">
-      <nav class="footer__nav">
-        <a href="#hero">Home</a>
+      <nav class="navlinks" aria-label="Primary">
+        <a href="#story">Story</a>
+        <a href="#identity">Identity</a>
         <a href="#members">Members</a>
         <a href="#timeline">Timeline</a>
-        <a href="#quotes">Quotes</a>
+        <a href="#gallery">Gallery</a>
+        <a href="#quotes">Voices</a>
       </nav>
-      <p class="credit">MessVerse · Built for the crew</p>
+
+      <a class="btn btn--primary" href="#cta">Enter the circle</a>
+    </div>
+  </div>
+
+  <main id="top">
+    <section class="hero">
+      <div class="container hero__grid">
+        <div class="card hero__panel" data-reveal>
+          <div class="kicker">Since August 2025 • Study • Story • Japan</div>
+          <h1 class="h1">We gathered for Japanese — we stayed for the story.</h1>
+          <p class="lead">
+            MessVerse is the home of our mess: 10 people living together since August 2025,
+            pushing through a Japanese course as a team — with one shared goal: go to Japan.
+            This site keeps our identity, jokes, routines, and milestones in one place.
+          </p>
+          <div class="hero__actions">
+            <a class="btn btn--primary" href="#story">Begin the story</a>
+            <a class="btn" href="#members">Meet the members</a>
+          </div>
+        </div>
+
+        <aside class="card hero__aside" data-reveal>
+          <div class="hero__art" aria-hidden="true">
+            <svg viewBox="0 0 1000 600" preserveAspectRatio="none">
+              <path d="M0 430 C 160 300, 260 520, 420 410 C 610 280, 740 510, 1000 330" fill="none" stroke="rgba(255,162,57,0.55)" stroke-width="8" stroke-linecap="round" />
+              <path d="M0 260 C 190 120, 320 340, 520 220 C 710 110, 830 260, 1000 150" fill="none" stroke="rgba(30,36,29,0.18)" stroke-width="10" stroke-linecap="round" />
+              <circle cx="220" cy="170" r="70" fill="rgba(151,168,122,0.30)" />
+              <circle cx="820" cy="220" r="92" fill="rgba(168,187,163,0.32)" />
+            </svg>
+          </div>
+
+          <div class="stat">
+            <div>
+              <b>10</b><br />
+              <span>members in the circle</span>
+            </div>
+            <div>
+              <b>1</b><br />
+              <span>shared story</span>
+            </div>
+          </div>
+
+          <div class="stat">
+            <div>
+              <b>∞</b><br />
+              <span>small moments</span>
+            </div>
+            <div>
+              <b>Aug 2025</b><br />
+              <span>we started</span>
+            </div>
+          </div>
+        </aside>
+      </div>
+    </section>
+
+    <section id="story" class="section section--tight">
+      <div class="container">
+        <div data-reveal>
+          <div class="kicker">Story</div>
+          <h2 class="h2">How our mess became a mission.</h2>
+          <p class="lead">
+            We came together in August 2025 with one plan: finish our Japanese course together.
+            Living under one roof turned that plan into a real identity — routines, roles, inside jokes,
+            and the kind of teamwork that makes the goal feel possible.
+          </p>
+        </div>
+
+        <div class="grid-3">
+          <div class="card blurb" data-reveal>
+            <h3>August 2025</h3>
+            <p>We started as messmates with a shared Japanese course — then the mess turned into a circle.</p>
+          </div>
+          <div class="card blurb" data-reveal>
+            <h3>Study rhythm</h3>
+            <p>Notes, practice, corrections, and late-night sessions — we move together, one chapter at a time.</p>
+          </div>
+          <div class="card blurb" data-reveal>
+            <h3>Japan goal</h3>
+            <p>Every small win is a step closer: consistency, discipline, and the promise that we’ll reach Japan together.</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section id="identity" class="section">
+      <div class="container">
+        <div data-reveal>
+          <div class="kicker">Identity</div>
+          <h2 class="h2">Identity, built in daily life.</h2>
+          <p class="lead">
+            In a mess, identity shows up every day: who cooks, who studies hardest, who keeps money safe,
+            who causes trouble, and who stays innocent. Together, it becomes one shared character.
+          </p>
+        </div>
+
+        <div class="grid-2">
+          <div class="card blurb" data-reveal>
+            <h3>Teamwork</h3>
+            <p>Japanese is the mission. When one person slows down, the rest pull them forward.</p>
+          </div>
+          <div class="card blurb" data-reveal>
+            <h3>Discipline</h3>
+            <p>Small daily progress, repeated. The goal stays big — Japan — but the steps stay consistent.</p>
+          </div>
+          <div class="card blurb" data-reveal>
+            <h3>Roles</h3>
+            <p>Creator, chef, gamer-investor, the “innocent” one, the naughtiest one — every role shapes the vibe.</p>
+          </div>
+          <div class="card blurb" data-reveal>
+            <h3>Destination</h3>
+            <p>When we finally land in Japan, we’ll have the story — and the proof — of how we got there.</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section id="members" class="section">
+      <div class="container">
+        <div class="members-head" data-reveal>
+          <div>
+            <div class="kicker">Members</div>
+            <h2 class="h2">The circle, in ten voices.</h2>
+          </div>
+          <p class="lead" style="max-width:52ch;margin:0;">
+            Tap a member to open their profile — identity tags, highlights, and a short bio.
+          </p>
+        </div>
+
+        <div id="membersWrap" class="members-wrap" data-reveal>
+          <div id="membersGrid" class="members-grid" aria-label="Members grid"></div>
+          <div class="members-button-wrapper">
+            <button id="membersToggle" class="btn members-toggle" type="button" aria-expanded="false">Show all members</button>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section id="timeline" class="section">
+      <div class="container">
+        <div data-reveal>
+          <div class="kicker">Timeline</div>
+          <h2 class="h2">Our timeline to Japan.</h2>
+          <p class="lead">From August 2025 to the day we fly — here are the milestones we care about.</p>
+        </div>
+
+        <div id="timelineList" class="timeline" aria-label="Timeline" data-reveal></div>
+      </div>
+    </section>
+
+    <section id="gallery" class="section">
+      <div class="container">
+        <div data-reveal>
+          <div class="kicker">Gallery</div>
+          <h2 class="h2">Moments from the mess.</h2>
+          <p class="lead">Add real photos any time — study nights, meals, celebrations, and the road to Japan.</p>
+        </div>
+
+        <div id="galleryGrid" class="gallery" aria-label="Gallery" data-reveal></div>
+      </div>
+    </section>
+
+    <section id="quotes" class="section">
+      <div class="container">
+        <div style="display:flex;justify-content:space-between;align-items:flex-end;gap:18px;flex-wrap:wrap" data-reveal>
+          <div>
+            <div class="kicker">Voices</div>
+            <h2 class="h2">Lines we still remember.</h2>
+          </div>
+          <button id="shuffleQuotes" class="btn" type="button">Shuffle voices</button>
+        </div>
+
+        <div id="quotesGrid" class="quotes" aria-label="Quotes" data-reveal></div>
+      </div>
+    </section>
+
+    <section id="cta" class="section section--tight">
+      <div class="container">
+        <div class="card" style="padding:26px" data-reveal>
+          <div class="kicker">Invitation</div>
+          <h2 class="h2" style="margin-top:10px">Build the archive as we grow.</h2>
+          <p class="lead">We can keep updating this site with real photos, new milestones, and the progress toward Japan.</p>
+          <div class="hero__actions" style="margin-top:12px">
+            <a class="btn btn--primary" href="#members">Return to members</a>
+            <a class="btn" href="#top">Back to top</a>
+          </div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <footer class="footer">
+    <div class="container footer__grid">
+      <div style="display:flex;align-items:center;gap:10px">
+        <img src="assets/logo.svg" alt="MessVerse" width="28" height="28" style="border-radius:10px" />
+        <div>
+          <div class="brand__name">MessVerse</div>
+          <div style="margin-top:6px">August 2025 → Japan • story & identity from the mess.</div>
+        </div>
+      </div>
+      <nav class="footer__links" aria-label="Footer">
+        <a href="#story">Story</a>
+        <a href="#identity">Identity</a>
+        <a href="#members">Members</a>
+        <a href="#timeline">Timeline</a>
+      </nav>
     </div>
   </footer>
 
-  <div class="controls" id="controls">
-    <button id="btnControls" class="controls__fab" aria-expanded="false" aria-controls="controlsPanel" title="Preferences">⚙</button>
-    <div id="controlsPanel" class="controls__panel" hidden>
-      <div class="controls__row">
-        <label><input type="checkbox" id="toggleMotion"> Reduce motion</label>
-      </div>
-      <div class="controls__row">
-        <label><input type="checkbox" id="toggleContrast"> High contrast</label>
-      </div>
-      <div class="controls__row">
-        <label>Type size
-          <select id="selectType">
-            <option value="normal">Normal</option>
-            <option value="large">Large</option>
-          </select>
-        </label>
+  <!-- Member modal -->
+  <div class="overlay" id="memberModal" hidden>
+    <div class="overlay__backdrop" data-backdrop></div>
+    <div class="overlay__panel" id="memberModalPanel" role="dialog" aria-modal="true" aria-labelledby="memberName">
+      <button id="memberClose" class="overlay__close" type="button" aria-label="Close" data-initial-focus>×</button>
+      <div class="overlay__content">
+        <div class="overlay__media">
+          <img id="memberImg" src="" alt="" />
+        </div>
+        <div class="overlay__body">
+          <h3 id="memberName" class="overlay__title">Member</h3>
+          <div id="memberTitle" class="overlay__subtitle"></div>
+          <div id="memberTags" class="tags" style="margin-top:12px"></div>
+          <p id="memberBio" class="overlay__text"></p>
+          <ul id="memberHighlights" class="overlay__list"></ul>
+        </div>
       </div>
     </div>
   </div>
 
-  <!-- Embedded data -->
-  <script id="members-data" type="application/json">{
+  <!-- Gallery lightbox -->
+  <div class="overlay" id="lightbox" hidden>
+    <div class="overlay__backdrop" data-backdrop></div>
+    <div class="overlay__panel" role="dialog" aria-modal="true" aria-labelledby="lightboxCaption">
+      <button id="lightboxClose" class="overlay__close" type="button" aria-label="Close" data-initial-focus>×</button>
+      <div class="overlay__content" style="grid-template-columns: 1fr;">
+        <div class="overlay__media" style="border-right:none;border-bottom:1px solid rgba(30,36,29,0.10)">
+          <img id="lightboxImg" src="" alt="" />
+        </div>
+        <div class="overlay__body">
+          <div id="lightboxCaption" class="overlay__subtitle"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Embedded data model -->
+  <script id="mv-data" type="application/json">{
     "members": [
-      {"id":"m01","name":"Abir","alias":null,"role":"website creator","accent":"neon_line","accentIcon":"code","colorBias":"cyan","band":"A","mosaic":{"row":1,"pos":1,"tiltDeg":-4},"quote":"I debug life like code."},
-      {"id":"m02","name":"Akanto","alias":null,"role":"gamer","accent":"blob","accentIcon":"gamepad","colorBias":"cyan","band":"A","mosaic":{"row":1,"pos":2,"tiltDeg":2},"quote":"GGs only."},
-      {"id":"m03","name":"Junayed","alias":null,"role":"strategist","accent":"icon","accentIcon":"book","colorBias":"teal","band":"A","mosaic":{"row":1,"pos":3,"tiltDeg":-2},"quote":"Plan twice, move once."},
-      {"id":"m04","name":"Khaled","alias":null,"role":"naughty","accent":"neon_line","accentIcon":"bolt","colorBias":"cyan","band":"B","mosaic":{"row":2,"pos":1,"tiltDeg":3},"quote":"Chaos is my spice."},
-      {"id":"m05","name":"Mita","alias":"Abir","i18n":{"bn":"মিতা"},"role":"","accent":"blob","accentIcon":"music","colorBias":"cyan","band":"B","mosaic":{"row":2,"pos":2,"tiltDeg":-1},"quote":"নরম সুরে কথা বলি।"},
-      {"id":"m06","name":"Maruf","alias":null,"role":"matrivhumiyan","accent":"icon","accentIcon":"leaf","colorBias":"teal","band":"B","mosaic":{"row":2,"pos":3,"tiltDeg":2},"quote":"Roots run deep."},
-      {"id":"m07","name":"Anas","alias":null,"role":"mafia","accent":"neon_line","accentIcon":"flame","colorBias":"cyan","band":"C","mosaic":{"row":2,"pos":4,"tiltDeg":-3},"quote":"Silent moves."},
-      {"id":"m08","name":"Tanvir","alias":null,"role":"innocent guy","accent":"blob","accentIcon":"wave","colorBias":"teal","band":"C","mosaic":{"row":3,"pos":1,"tiltDeg":-2},"quote":"Kindness first."},
-      {"id":"m09","name":"TBD","alias":null,"role":"","accent":"icon","accentIcon":"camera","colorBias":"cyan","band":"C","mosaic":{"row":3,"pos":2,"tiltDeg":1},"quote":"Ready for close-up."},
-      {"id":"m10","name":"TBD","alias":null,"role":"","accent":"neon_line","accentIcon":"star","colorBias":"cyan","band":"D","mosaic":{"row":3,"pos":3,"tiltDeg":-4},"quote":"Shining soon."}
+      {
+        "id": "m01",
+        "name": "Abir",
+        "title": "Website creator & digital expert",
+        "portrait": "assets/members/abir3.jpg",
+        "bio": "Built the site, keeps the system clean, and turns our mess story into something we can proudly show.",
+        "highlights": ["Designs + maintains MessVerse", "Helps everyone with tech", "Keeps the mission on track"],
+        "identityTags": [{"label":"Creator","isAccent":true},{"label":"Tech"},{"label":"Leadership"}],
+        "quote": "If it's not documented, it didn't happen."
+      },
+      {
+        "id": "m02",
+        "name": "Junayed",
+        "title": "Cook & master chef",
+        "portrait": "assets/members/junu.jpeg",
+        "bio": "The heart of the mess. When the food is good, the study goes smoother. Simple rule.",
+        "highlights": ["Feeds the whole mess", "Keeps energy high", "Chef-mode always"],
+        "identityTags": [{"label":"Chef","isAccent":true},{"label":"Warmth"},{"label":"Routine"}],
+        "quote": "Eat first. Then study."
+      },
+      {
+        "id": "m03",
+        "name": "Akanto",
+        "title": "Gamer & mess investment manager",
+        "portrait": "assets/members/m03.svg",
+        "bio": "Plays smart, thinks smart. From games to money — he manages moves like strategy.",
+        "highlights": ["Gamer mindset", "Manages mess investments", "Always thinking ahead"],
+        "identityTags": [{"label":"Strategy","isAccent":true},{"label":"Money"},{"label":"Gaming"}],
+        "quote": "Risk is fine… if it's calculated."
+      },
+      {
+        "id": "m04",
+        "name": "Khaled",
+        "title": "Looks innocent… but he's not",
+        "portrait": "assets/members/m04.svg",
+        "bio": "The face says innocent. The actions say plot twist. Keeps the mess entertaining.",
+        "highlights": ["Master of unexpected moves", "Always a surprise", "Never fully innocent"],
+        "identityTags": [{"label":"Plot twist","isAccent":true},{"label":"Chaos"},{"label":"Charm"}],
+        "quote": "Who, me? I did nothing."
+      },
+      {
+        "id": "m05",
+        "name": "Maruf",
+        "title": "Nothing to say (legendary silence)",
+        "portrait": "assets/members/m05.svg",
+        "bio": "Some people talk a lot. Maruf doesn't. But somehow he's always part of the story.",
+        "highlights": ["Quiet presence", "Shows up", "Low words, high impact"],
+        "identityTags": [{"label":"Silent","isAccent":true},{"label":"Presence"},{"label":"Consistency"}],
+        "quote": "…"
+      },
+      {
+        "id": "m06",
+        "name": "Abir (Mita)",
+        "title": "My mita — same name",
+        "portrait": "assets/members/m06.svg",
+        "bio": "Same name, different energy. Abir 2 of the mess — close, familiar, always around.",
+        "highlights": ["The other Abir", "Brother vibe", "Always involved"],
+        "identityTags": [{"label":"Mita","isAccent":true},{"label":"Bond"},{"label":"Inside-joke"}],
+        "quote": "Call Abir and both of us answer."
+      },
+      {
+        "id": "m07",
+        "name": "Anas",
+        "title": "The naughtiest",
+        "portrait": "assets/members/m07.svg",
+        "bio": "The troublemaker with talent. If something funny happened, Anas is probably connected to it.",
+        "highlights": ["Comedy + chaos", "Never boring", "Keeps everyone awake"],
+        "identityTags": [{"label":"Naughty","isAccent":true},{"label":"Energy"},{"label":"Fun"}],
+        "quote": "Relax. It's under control (maybe)."
+      },
+      {
+        "id": "m08",
+        "name": "Tanvir",
+        "title": "The true innocent guy",
+        "portrait": "assets/members/m08.svg",
+        "bio": "Pure, calm, and genuinely innocent. The one person you can trust to not cause drama.",
+        "highlights": ["Peacekeeper", "Honest energy", "Good vibes only"],
+        "identityTags": [{"label":"Innocent","isAccent":true},{"label":"Calm"},{"label":"Trust"}],
+        "quote": "Let's just study and finish it."
+      },
+      {
+        "id": "m09",
+        "name": "Member 9 (TBD)",
+        "title": "Add name + role",
+        "portrait": "assets/members/m09.svg",
+        "bio": "This profile is reserved — add the real name, role, and story when ready.",
+        "highlights": ["TBD"],
+        "identityTags": [{"label":"Reserved","isAccent":true},{"label":"TBD"}],
+        "quote": "Coming soon."
+      },
+      {
+        "id": "m10",
+        "name": "Member 10 (TBD)",
+        "title": "Add name + role",
+        "portrait": "assets/members/m10.svg",
+        "bio": "This profile is reserved — add the real name, role, and story when ready.",
+        "highlights": ["TBD"],
+        "identityTags": [{"label":"Reserved","isAccent":true},{"label":"TBD"}],
+        "quote": "Coming soon."
+      }
     ],
-    "quotesInitialShow":["m01","m02","m03","m04","m05","m06"],
-    "quotesShufflePool":["m07","m08","m09","m10"]
+    "timeline": [
+      {"year":"Aug 2025","title":"Mess begins","text":"We moved in and decided to finish our Japanese course together."},
+      {"year":"Sep 2025","title":"Study routine","text":"Schedules, notes, and daily practice became the mess culture."},
+      {"year":"Oct 2025","title":"First strong momentum","text":"We started understanding faster because we studied as a team."},
+      {"year":"2026","title":"Plan for Japan","text":"Budgeting, preparation, and keeping the goal alive: Japan."},
+      {"year":"Soon","title":"Japan","text":"The destination. When it happens, this site becomes the full archive of how we earned it."}
+    ],
+    "gallery": [
+      {"src":"assets/gallery/g01.svg","alt":"Abstract gallery image","caption":"August 2025 — the beginning"},
+      {"src":"assets/gallery/g02.svg","alt":"Abstract gallery image","caption":"Study nights & shared notes"},
+      {"src":"assets/gallery/g03.svg","alt":"Abstract gallery image","caption":"Chef moments (Junayed's kitchen)"},
+      {"src":"assets/gallery/g04.svg","alt":"Abstract gallery image","caption":"Inside jokes & mess energy"},
+      {"src":"assets/gallery/g05.svg","alt":"Abstract gallery image","caption":"Quiet focus — learning Japanese"},
+      {"src":"assets/gallery/g06.svg","alt":"Abstract gallery image","caption":"Japan goal — coming closer"}
+    ],
+    "quotes": [
+      {"by":"Abir","text":"We build it clean, then we build it forever."},
+      {"by":"Junayed","text":"No food, no focus."},
+      {"by":"Akanto","text":"Investments and XP — both need patience."},
+      {"by":"Khaled","text":"I look innocent. That’s the plan."},
+      {"by":"Maruf","text":"…"},
+      {"by":"Abir (Mita)","text":"Two Abirs, one mess."},
+      {"by":"Anas","text":"If it’s quiet, something is wrong."},
+      {"by":"Tanvir","text":"Let's stay consistent. Japan is waiting."}
+    ]
   }</script>
 
   <script src="scripts/main.js" defer></script>

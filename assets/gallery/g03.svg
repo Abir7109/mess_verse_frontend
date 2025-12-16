@@ -1,0 +1,6 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="800" viewBox="0 0 1200 800" role="img" aria-label="Gallery placeholder">
+  <rect width="1200" height="800" fill="#FCF9EA"/>
+  <rect x="86" y="86" width="1028" height="628" rx="48" fill="#A8BBA3" opacity="0.16"/>
+  <path d="M180 610 C 340 440, 460 740, 650 575 C 820 450, 930 620, 1040 480" fill="none" stroke="#FFA239" stroke-width="10" stroke-linecap="round" opacity="0.88"/>
+  <path d="M190 245 C 380 135, 540 340, 730 235 C 900 140, 1010 270, 1040 212" fill="none" stroke="#97A87A" stroke-width="10" stroke-linecap="round" opacity="0.62"/>
+</svg>

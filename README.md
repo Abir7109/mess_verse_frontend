@@ -1,22 +1,29 @@
-# MessVerse (frontend)
-Immersive, identity-driven site for our mess members. Static prototype with PWA, accessibility, and performance baked in.
-
-## Features
-- Hero mosaic with layered parallax and hover/focus reveals
-- Identity showcase (bands A–D) with generative accents per member
-- SVG timeline that draws on scroll + keyboard navigation and tooltip
-- Interactive quotes (drift + shuffle), hover/focus parity
-- Preferences panel: Reduce motion, High contrast, Type size
-- PWA: offline-ready manifest + service worker
-- Accessibility: skip link, focus rings, reduced-motion support
-- Performance: content-visibility, minimal layout thrash, lazy reveals
+﻿# MessVerse (frontend)
+Luxury, story-and-identity focused single-page site.
 
 ## Dev
-Open `index.html` directly or run a quick static server for PWA:
+Open `index.html` directly for quick iteration, or run a static server (recommended for PWA/service worker):
 
 ```sh
 npx serve .
 ```
+
+## Content
+All content lives in `index.html` inside the embedded JSON script tag:
+- `<script id="mv-data" type="application/json">…</script>`
+
+Update:
+- `members[]` (names, bios, identity tags, highlights, portrait paths)
+- `timeline[]`
+- `gallery[]`
+- `quotes[]`
+
+### Assets
+Placeholder images are included as SVGs:
+- Member portraits: `assets/members/m01.svg` … `m10.svg`
+- Gallery placeholders: `assets/gallery/g01.svg` … `g06.svg`
+
+Replace these with real photos whenever you want (keep the paths in `mv-data` in sync).
 
 ## Deploy (Vercel)
 - New Project → Import this repo
@@ -24,7 +31,3 @@ npx serve .
 - Build Command: none
 - Output Directory: `.`
 - Vercel will serve `index.html` from the repo root
-
-## Content
-Edit embedded JSON in `index.html` (script tag with id `members-data`).
-Add portraits under `assets/` and reference them in the JSON.

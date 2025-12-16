@@ -1,0 +1,18 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="720" height="900" viewBox="0 0 720 900" role="img" aria-label="Portrait placeholder">
+  <defs>
+    <linearGradient id="bg" x1="1" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#A8BBA3"/>
+      <stop offset="1" stop-color="#97A87A"/>
+    </linearGradient>
+    <radialGradient id="glow" cx="72%" cy="26%" r="80%">
+      <stop offset="0" stop-color="#FFA239" stop-opacity="0.36"/>
+      <stop offset="1" stop-color="#FCF9EA" stop-opacity="0"/>
+    </radialGradient>
+  </defs>
+  <rect width="720" height="900" fill="#FCF9EA"/>
+  <rect width="720" height="900" fill="url(#bg)" opacity="0.16"/>
+  <rect width="720" height="900" fill="url(#glow)"/>
+  <rect x="160" y="155" width="400" height="520" rx="210" fill="#FCF9EA" opacity="0.86"/>
+  <path d="M205 720 C 270 590, 450 590, 515 720" fill="#FCF9EA" opacity="0.72"/>
+  <text x="50%" y="84%" text-anchor="middle" font-family="ui-serif, Georgia, serif" font-size="92" fill="#1E241D" opacity="0.92">NV</text>
+</svg>

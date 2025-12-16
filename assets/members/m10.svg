@@ -1,0 +1,18 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="720" height="900" viewBox="0 0 720 900" role="img" aria-label="Portrait placeholder">
+  <defs>
+    <linearGradient id="bg" x1="1" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#A8BBA3"/>
+      <stop offset="1" stop-color="#FCF9EA"/>
+    </linearGradient>
+    <radialGradient id="glow" cx="68%" cy="20%" r="88%">
+      <stop offset="0" stop-color="#FFA239" stop-opacity="0.28"/>
+      <stop offset="1" stop-color="#FCF9EA" stop-opacity="0"/>
+    </radialGradient>
+  </defs>
+  <rect width="720" height="900" fill="#FCF9EA"/>
+  <rect width="720" height="900" fill="url(#bg)" opacity="0.14"/>
+  <rect width="720" height="900" fill="url(#glow)"/>
+  <circle cx="360" cy="350" r="215" fill="#FCF9EA" opacity="0.86"/>
+  <path d="M170 725 C 255 595, 465 595, 550 725" fill="#FCF9EA" opacity="0.70"/>
+  <text x="50%" y="84%" text-anchor="middle" font-family="ui-serif, Georgia, serif" font-size="92" fill="#1E241D" opacity="0.92">CR</text>
+</svg>

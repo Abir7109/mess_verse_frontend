@@ -1,0 +1,18 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="720" height="900" viewBox="0 0 720 900" role="img" aria-label="Portrait placeholder">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="1" x2="1" y2="0">
+      <stop offset="0" stop-color="#97A87A"/>
+      <stop offset="1" stop-color="#FCF9EA"/>
+    </linearGradient>
+    <radialGradient id="glow" cx="40%" cy="20%" r="85%">
+      <stop offset="0" stop-color="#FFA239" stop-opacity="0.34"/>
+      <stop offset="1" stop-color="#FCF9EA" stop-opacity="0"/>
+    </radialGradient>
+  </defs>
+  <rect width="720" height="900" fill="#FCF9EA"/>
+  <rect width="720" height="900" fill="url(#bg)" opacity="0.14"/>
+  <rect width="720" height="900" fill="url(#glow)"/>
+  <path d="M220 235 C 280 135, 440 135, 500 235 C 560 335, 520 520, 360 560 C 200 520, 160 335, 220 235 Z" fill="#FCF9EA" opacity="0.88"/>
+  <path d="M165 725 C 250 595, 470 595, 555 725" fill="#FCF9EA" opacity="0.70"/>
+  <text x="50%" y="84%" text-anchor="middle" font-family="ui-serif, Georgia, serif" font-size="92" fill="#1E241D" opacity="0.92">SH</text>
+</svg>

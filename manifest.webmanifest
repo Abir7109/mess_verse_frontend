@@ -1,10 +1,10 @@
-{
+﻿{
   "name": "MessVerse",
   "short_name": "MessVerse",
   "start_url": ".",
   "display": "standalone",
-  "background_color": "#005461",
-  "theme_color": "#005461",
-  "description": "Identity-driven, immersive website for our mess members.",
+  "background_color": "#FCF9EA",
+  "theme_color": "#97A87A",
+  "description": "A luxury, identity-driven archive of story, ritual, and friendship.",
   "icons": []
 }

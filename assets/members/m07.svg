@@ -1,0 +1,18 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="720" height="900" viewBox="0 0 720 900" role="img" aria-label="Portrait placeholder">
+  <defs>
+    <linearGradient id="bg" x1="1" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#FCF9EA"/>
+      <stop offset="1" stop-color="#97A87A"/>
+    </linearGradient>
+    <radialGradient id="glow" cx="46%" cy="22%" r="88%">
+      <stop offset="0" stop-color="#FFA239" stop-opacity="0.34"/>
+      <stop offset="1" stop-color="#FCF9EA" stop-opacity="0"/>
+    </radialGradient>
+  </defs>
+  <rect width="720" height="900" fill="#FCF9EA"/>
+  <rect width="720" height="900" fill="url(#bg)" opacity="0.14"/>
+  <rect width="720" height="900" fill="url(#glow)"/>
+  <path d="M180 270 C 230 140, 490 140, 540 270 C 590 400, 520 540, 360 560 C 200 540, 130 400, 180 270 Z" fill="#FCF9EA" opacity="0.88"/>
+  <path d="M170 725 C 255 595, 465 595, 550 725" fill="#FCF9EA" opacity="0.70"/>
+  <text x="50%" y="84%" text-anchor="middle" font-family="ui-serif, Georgia, serif" font-size="92" fill="#1E241D" opacity="0.92">JW</text>
+</svg>

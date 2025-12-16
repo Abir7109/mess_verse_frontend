@@ -1,228 +1,304 @@
-(function(){
-  const root = document.documentElement;
-  const mediaReduced = window.matchMedia('(prefers-reduced-motion: reduce)');
-  const prefersReduced = mediaReduced.matches;
-  const ls = window.localStorage;
+﻿(function(){
+  const $ = (sel, el=document)=> el.querySelector(sel);
+  const $$ = (sel, el=document)=> Array.from(el.querySelectorAll(sel));
 
-  // Preferences (motion/contrast/type)
-  let userMotion = ls.getItem('mv_motion') ?? 'on'; // 'on' | 'off'
-  let userContrast = ls.getItem('mv_contrast') === 'on';
-  let userType = ls.getItem('mv_type') ?? 'normal'; // 'normal' | 'large'
-  applyPrefs();
+  const dataEl = document.getElementById('mv-data');
+  if(!dataEl) return;
 
-  function motionOn(){ return !prefersReduced && userMotion === 'on'; }
-  function applyPrefs(){
-    root.classList.toggle('contrast-high', !!userContrast);
-    root.classList.toggle('type-large', userType === 'large');
-  }
-
-  // Controls UI
-  const btnCtl = document.getElementById('btnControls');
-  const panel = document.getElementById('controlsPanel');
-  const tMotion = document.getElementById('toggleMotion');
-  const tContrast = document.getElementById('toggleContrast');
-  const sType = document.getElementById('selectType');
-  if(btnCtl){
-    btnCtl.addEventListener('click',()=>{
-      const open = panel.hasAttribute('hidden') ? false : true;
-      panel.toggleAttribute('hidden');
-      btnCtl.setAttribute('aria-expanded', String(!open));
-      // sync toggles on open
-      tMotion.checked = (userMotion === 'off');
-      tContrast.checked = userContrast;
-      sType.value = userType;
-    });
-    tMotion?.addEventListener('change',()=>{
-      userMotion = tMotion.checked ? 'off' : 'on';
-      ls.setItem('mv_motion', userMotion);
-      if(!motionOn()) stopDrifts();
-    });
-    tContrast?.addEventListener('change',()=>{
-      userContrast = tContrast.checked; ls.setItem('mv_contrast', userContrast?'on':'off'); applyPrefs();
-    });
-    sType?.addEventListener('change',()=>{
-      userType = sType.value; ls.setItem('mv_type', userType); applyPrefs();
-    });
-  }
-
-  // Intersection Observer: add .is-inview for [data-reveal]
-  const io = new IntersectionObserver((entries)=>{
-    entries.forEach(e=>{
-      if(e.isIntersecting && e.intersectionRatio>=0.25){ e.target.classList.add('is-inview'); }
-    })
-  },{threshold:[0,0.25,0.6,1]});
-  document.querySelectorAll('[data-reveal]').forEach(el=>io.observe(el));
-
-  // Read embedded data
-  const dataEl = document.getElementById('members-data');
   const DATA = JSON.parse(dataEl.textContent);
-  const members = DATA.members;
-  const membersTimeline = members.slice(0,10);
 
-  // Utility: initials and seeded random
-  const initials = (name)=> name.split(/\s+/).map(w=>w[0]?.toUpperCase()||'').slice(0,2).join('');
-  const hash = (s)=>{ let h=1779033703^s.length; for(let i=0;i<s.length;i++){ h = Math.imul(h^s.charCodeAt(i),3432918353); h = h<<13 | h>>>19; } return (h>>>0); };
-  const mulberry32 = (a)=>{ return function(){ let t=a+=0x6D2B79F5; t=Math.imul(t^(t>>>15), t|1); t^=t+Math.imul(t^(t>>>7), t|61); return ((t^(t>>>14))>>>0)/4294967296; } };
-
-  // Build hero mosaic (3-4-3)
-  const mosaic = document.getElementById('mosaic');
-  const positions = members.map(m => ({...m})).sort((a,b)=>{
-    if(a.mosaic?.row !== b.mosaic?.row) return (a.mosaic?.row||0) - (b.mosaic?.row||0);
-    return (a.mosaic?.pos||0) - (b.mosaic?.pos||0);
-  });
-  positions.forEach((m)=>{
-    const tile = document.createElement('button');
-    tile.className = 'tile'; tile.setAttribute('data-depth', m.mosaic?.row===2?1:0.5);
-    tile.style.setProperty('--tilt', `${m.mosaic?.tiltDeg||0}deg`);
-    tile.setAttribute('aria-label', `${m.name}`);
-    tile.innerHTML = `
-      <div class=\"tile__portrait\" role=\"img\" aria-label=\"${m.name}\">${initials(m.name)}</div>
-      <span class=\"tile__name\">${m.name}</span>
-    `;
-    mosaic.appendChild(tile);
-  });
-
-  // CTA scroll
-  document.getElementById('ctaMeet').addEventListener('click',()=>{
-    document.getElementById('members').scrollIntoView({behavior: motionOn()? 'smooth':'auto'});
-  });
-
-  // Bands (A-D) with generative accents
-  function renderBand(bandId, filter){
-    const host = document.getElementById(bandId);
-    host.innerHTML='';
-    const leading = host.classList.contains('right-leading') ? 'right' : (host.classList.contains('center-leading')?'center':'left');
-    members.filter(filter).forEach(m=>{
-      const el = document.createElement('div'); el.className='member'; el.tabIndex=0;
-      const display = m.i18n?.bn && (m.name==='Mita') ? `${m.name} / ${m.i18n.bn}` : m.name;
-      el.innerHTML = `
-        <div class=\"portrait\">${initials(m.name)}</div>
-        <div>
-          <div class=\"name\">${display}</div>
-          <div class=\"role\">${m.role||''}</div>
-        </div>
-        <div class=\"quote\">${m.quote||''}</div>
-      `;
-      // Accent
-      const accent = document.createElement('div');
-      accent.className = `accent accent--${m.accent}`;
-      const seed = mulberry32(hash(m.id));
-      const svgNS = 'http://www.w3.org/2000/svg';
-      const svg = document.createElementNS(svgNS,'svg'); svg.setAttribute('width','140'); svg.setAttribute('height','90');
-      const path = document.createElementNS(svgNS,'path');
-      if(m.accent === 'blob'){
-        path.setAttribute('d', blobPath(seed, 70, 45, 32, 8));
-      }else{ // neon line or icon-style line
-        path.setAttribute('d', neonPath(seed, 140, 90));
+  // Reveal on scroll
+  const revealIO = new IntersectionObserver((entries)=>{
+    for(const e of entries){
+      if(e.isIntersecting){
+        e.target.classList.add('is-inview');
+        revealIO.unobserve(e.target);
       }
-      svg.appendChild(path); accent.appendChild(svg);
-      accent.style.top = leading==='right' ? '8px' : '0px';
-      accent.style.left = leading==='right' ? 'unset' : '0px';
-      accent.style.right = leading==='right' ? '0px' : 'unset';
-      el.prepend(accent);
-      host.appendChild(el);
+    }
+  }, {threshold: 0.18});
+  $$('[data-reveal]').forEach(el=>revealIO.observe(el));
+
+  // Nav active section
+  const navLinks = $$('.navlinks a[href^="#"]');
+  const sectionIds = navLinks.map(a => a.getAttribute('href')?.slice(1)).filter(Boolean);
+  const sections = sectionIds.map(id => document.getElementById(id)).filter(Boolean);
+
+  const setActive = (id)=>{
+    navLinks.forEach(a => {
+      const active = a.getAttribute('href') === `#${id}`;
+      a.classList.toggle('is-active', active);
+      if(active) a.setAttribute('aria-current', 'page');
+      else a.removeAttribute('aria-current');
+    });
+  };
+
+  const sectionIO = new IntersectionObserver((entries)=>{
+    // pick most visible
+    const visible = entries
+      .filter(e=>e.isIntersecting)
+      .sort((a,b)=> (b.intersectionRatio||0) - (a.intersectionRatio||0))[0];
+    if(visible?.target?.id) setActive(visible.target.id);
+  }, {threshold: [0.18,0.32,0.5,0.65]});
+
+  sections.forEach(s=>sectionIO.observe(s));
+
+  // Members
+  const membersWrap = $('#membersWrap');
+  const membersGrid = $('#membersGrid');
+  const membersToggle = $('#membersToggle');
+
+  const memberModal = $('#memberModal');
+  const memberModalPanel = $('#memberModalPanel');
+  const memberCloseBtn = $('#memberClose');
+  const memberImg = $('#memberImg');
+  const memberName = $('#memberName');
+  const memberTitle = $('#memberTitle');
+  const memberBio = $('#memberBio');
+  const memberHighlights = $('#memberHighlights');
+  const memberTags = $('#memberTags');
+
+  let lastFocus = null;
+
+  const openOverlay = (overlay)=>{
+    lastFocus = document.activeElement;
+    overlay.hidden = false;
+    document.body.style.overflow = 'hidden';
+    const focusTarget = overlay.querySelector('[data-initial-focus]') || overlay.querySelector('button, a, input, [tabindex]:not([tabindex="-1"])');
+    focusTarget?.focus();
+  };
+
+  const closeOverlay = (overlay)=>{
+    overlay.hidden = true;
+    document.body.style.overflow = '';
+    lastFocus?.focus?.();
+    lastFocus = null;
+  };
+
+  const trapTab = (overlay, e)=>{
+    if(e.key !== 'Tab') return;
+    const focusables = $$('button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])', overlay)
+      .filter(el => !el.hasAttribute('disabled') && !el.getAttribute('aria-hidden'));
+    if(focusables.length === 0) return;
+
+    const first = focusables[0];
+    const last = focusables[focusables.length - 1];
+    if(e.shiftKey && document.activeElement === first){
+      e.preventDefault();
+      last.focus();
+    }else if(!e.shiftKey && document.activeElement === last){
+      e.preventDefault();
+      first.focus();
+    }
+  };
+
+  function renderMemberCard(m){
+    const btn = document.createElement('button');
+    btn.className = 'member-card';
+    btn.type = 'button';
+    btn.setAttribute('aria-label', `Open profile: ${m.name}`);
+
+    const tags = (m.identityTags || []).slice(0, 3).map(t=>`<span class="tag ${t.isAccent? 'tag--accent':''}">${escapeHtml(t.label)}</span>`).join('');
+
+    btn.innerHTML = `
+      <div class="member-card__img">
+        <img src="${escapeAttr(m.portrait)}" alt="Portrait of ${escapeAttr(m.name)}" loading="lazy" />
+      </div>
+      <div class="member-card__meta">
+        <p class="member-card__name">${escapeHtml(m.name)}</p>
+        <p class="member-card__title">${escapeHtml(m.title || '')}</p>
+        <div class="tags">${tags}</div>
+      </div>
+    `;
+
+    btn.addEventListener('click', ()=> openMember(m));
+    return btn;
+  }
+
+  function openMember(m){
+    memberImg.src = m.portrait;
+    memberImg.alt = `Portrait of ${m.name}`;
+    memberName.textContent = m.name;
+    memberTitle.textContent = m.title || '';
+    memberBio.textContent = m.bio || '';
+
+    memberHighlights.innerHTML = '';
+    (m.highlights || []).forEach(h=>{
+      const li = document.createElement('li');
+      li.textContent = h;
+      memberHighlights.appendChild(li);
+    });
+
+    memberTags.innerHTML = '';
+    (m.identityTags || []).forEach(t=>{
+      const span = document.createElement('span');
+      span.className = `tag ${t.isAccent? 'tag--accent':''}`;
+      span.textContent = t.label;
+      memberTags.appendChild(span);
+    });
+
+    openOverlay(memberModal);
+  }
+
+  if(membersGrid){
+    (DATA.members || []).forEach(m=> membersGrid.appendChild(renderMemberCard(m)));
+
+    // Android/small-screen members collapse: show only ~2 cards by default
+    const mql = window.matchMedia('(max-width: 520px)');
+    let expanded = false;
+
+    const syncMembersCollapseUI = ()=>{
+      if(!membersWrap || !membersToggle) return;
+
+      const isSmall = mql.matches;
+      // Only enable the feature on small screens and when there are enough members.
+      const enabled = isSmall && (DATA.members || []).length > 2;
+
+      membersToggle.hidden = !enabled;
+      if(!enabled){
+        membersWrap.classList.remove('is-collapsed');
+        membersToggle.setAttribute('aria-expanded', 'true');
+        expanded = true;
+        return;
+      }
+
+      membersWrap.classList.toggle('is-collapsed', !expanded);
+      membersToggle.setAttribute('aria-expanded', String(expanded));
+      membersToggle.textContent = expanded ? 'Show fewer members' : 'Show all members';
+    };
+
+    membersToggle?.addEventListener('click', ()=>{
+      expanded = !expanded;
+      syncMembersCollapseUI();
+    });
+
+    mql.addEventListener?.('change', ()=>{
+      // When entering small-screen mode, default to collapsed.
+      if(mql.matches) expanded = false;
+      syncMembersCollapseUI();
+    });
+
+    // Initial
+    if(mql.matches) expanded = false;
+    syncMembersCollapseUI();
+  }
+
+  // Timeline
+  const timelineHost = $('#timelineList');
+  if(timelineHost){
+    (DATA.timeline || []).forEach(item=>{
+      const row = document.createElement('div');
+      row.className = 'card tl-item';
+      row.innerHTML = `
+        <div class="tl-year">${escapeHtml(item.year)}</div>
+        <div>
+          <h3 class="tl-title">${escapeHtml(item.title)}</h3>
+          <p class="tl-text">${escapeHtml(item.text)}</p>
+        </div>
+      `;
+      timelineHost.appendChild(row);
     });
   }
-  function blobPath(rand, cx, cy, r, k){
-    const pts=[]; for(let i=0;i<k;i++){ const a=i/k*2*Math.PI; const rr=r*(0.8+rand()*0.4); pts.push([cx+Math.cos(a)*rr, cy+Math.sin(a)*rr]); }
-    let d=`M ${pts[0][0]} ${pts[0][1]}`; for(let i=1;i<pts.length;i++){ const p=pts[i]; d+=` Q ${(pts[i-1][0]+p[0])/2} ${(pts[i-1][1]+p[1])/2}, ${p[0]} ${p[1]}`; } d+=` Z`; return d;
-  }
-  function neonPath(rand, w, h){
-    const y1 = h*(0.2+rand()*0.6), y2 = h*(0.2+rand()*0.6); const c1=h*(0.2+rand()*0.6), c2=h*(0.2+rand()*0.6);
-    return `M 0 ${y1} C ${w*0.33} ${c1}, ${w*0.66} ${c2}, ${w} ${y2}`;
-  }
-  renderBand('bandA', m=>m.band==='A');
-  renderBand('bandB', m=>m.band==='B');
-  renderBand('bandC', m=>m.band==='C');
-  renderBand('bandD', m=>m.band==='D');
 
-  // Parallax engine (optimized)
-  const layers=[...document.querySelectorAll('[data-depth]')];
-  function parallax(){
-    if(!motionOn()){ layers.forEach(el=>{ el.style.transform = `rotate(var(--tilt,0deg))`; }); return; }
-    const vpH=window.innerHeight;
-    layers.forEach(el=>{
-      const r=el.getBoundingClientRect();
-      const p=(r.top + r.height*0.5 - vpH*0.5)/vpH;
-      const d=parseFloat(el.dataset.depth||0);
-      const max = window.matchMedia('(max-width:640px)').matches ? parseFloat(getComputedStyle(root).getPropertyValue('--parallax-max-mobile')) : parseFloat(getComputedStyle(root).getPropertyValue('--parallax-max'));
-      const y = p*d*max;
-      el.style.transform = `translate3d(0, ${y}px, 0) rotate(var(--tilt,0deg))`;
-    })
-  }
-  let rafId = null;
-  function onScroll(){ if(rafId) cancelAnimationFrame(rafId); rafId = requestAnimationFrame(parallax); }
-  window.addEventListener('scroll', onScroll, {passive:true}); parallax();
+  // Gallery + lightbox
+  const galleryHost = $('#galleryGrid');
+  const lightbox = $('#lightbox');
+  const lightboxImg = $('#lightboxImg');
+  const lightboxCaption = $('#lightboxCaption');
+  const lightboxCloseBtn = $('#lightboxClose');
 
-  // Timeline nodes and draw + keyboard + tooltip
-  const path = document.getElementById('timelinePath');
-  const nodesGroup = document.getElementById('timelineNodes');
-  const tooltip = document.getElementById('timelineTooltip');
-  const len = path.getTotalLength();
-  path.style.strokeDasharray = `${len}`; path.style.strokeDashoffset = `${len}`;
-  const tlIO=new IntersectionObserver(([e])=>{
-    if(e.isIntersecting){ path.animate([{strokeDashoffset:len},{strokeDashoffset:0}],{duration:1200,easing:'cubic-bezier(0.22,1,0.36,1)',fill:'forwards'}); tlIO.disconnect(); }
-  },{threshold:0.4}); tlIO.observe(path);
-
-  const nodeEls=[]; const N = 10; for(let i=0;i<N;i++){
-    const t = i/(N-1); const p = pointAt(t);
-    const node = document.createElementNS('http://www.w3.org/2000/svg','circle');
-    node.setAttribute('cx', p.x); node.setAttribute('cy', p.y); node.setAttribute('r','6');
-    node.setAttribute('tabindex','0'); node.dataset.index = String(i);
-    const member = membersTimeline[i]; if(member){ node.setAttribute('role','button'); node.setAttribute('aria-label', `${member.name}`); node.dataset.memberId = member.id; }
-    nodesGroup.appendChild(node); nodeEls.push(node);
-    node.addEventListener('mouseenter', ()=> showTip(node));
-    node.addEventListener('mouseleave', hideTip);
-    node.addEventListener('focus', ()=> showTip(node));
-    node.addEventListener('blur', hideTip);
+  function openLightbox(item){
+    lightboxImg.src = item.src;
+    lightboxImg.alt = item.alt || 'Gallery image';
+    lightboxCaption.textContent = item.caption || '';
+    openOverlay(lightbox);
   }
-  function pointAt(t){ const l = len * t; return path.getPointAtLength(l); }
-  function showTip(node){
-    const id = node.dataset.memberId; const m = members.find(mm=>mm.id===id) || {}; const label = m.name || `Node ${node.dataset.index}`;
-    const r = node.getBoundingClientRect(); const hostR = document.getElementById('timeline').getBoundingClientRect();
-    tooltip.textContent = label; tooltip.style.left = `${r.left - hostR.left + r.width/2}px`; tooltip.style.top = `${r.top - hostR.top}px`; tooltip.hidden = false;
-  }
-  function hideTip(){ tooltip.hidden = true; }
-  document.getElementById('timeline').addEventListener('keydown',(e)=>{
-    const active = document.activeElement; const idx = nodeEls.indexOf(active); if(idx<0) return;
-    if(e.key==='ArrowRight'){ e.preventDefault(); const n = nodeEls[Math.min(nodeEls.length-1, idx+1)]; n?.focus(); }
-    if(e.key==='ArrowLeft'){ e.preventDefault(); const p = nodeEls[Math.max(0, idx-1)]; p?.focus(); }
-    if(e.key==='Enter' || e.key===' '){ e.preventDefault(); showTip(active); }
-  });
 
-  // Quotes field: show 6, drift, shuffle (pauses with motion off)
-  const showIds = DATA.quotesInitialShow; const poolIds = DATA.quotesShufflePool;
-  const qField = document.getElementById('quotesField');
-  const driftAnims = new Set();
-  function renderQuotes(ids){ qField.innerHTML=''; ids.forEach(id=>{
-      const m = members.find(mm=>mm.id===id); if(!m) return;
-      const card = document.createElement('button'); card.className='quoteCard'; card.tabIndex=0;
-      card.innerHTML = `<span class=\"quoteBadge\">${m.name}</span>${m.quote||'…'}`;
-      qField.appendChild(card);
-      if(motionOn()) drift(card);
+  if(galleryHost){
+    (DATA.gallery || []).forEach(item=>{
+      const fig = document.createElement('figure');
+      fig.className = 'figure';
+      fig.tabIndex = 0;
+      fig.setAttribute('role','button');
+      fig.setAttribute('aria-label', `Open gallery item: ${item.caption || 'image'}`);
+      fig.innerHTML = `
+        <img src="${escapeAttr(item.src)}" alt="${escapeAttr(item.alt || '')}" loading="lazy" />
+        <figcaption>${escapeHtml(item.caption || '')}</figcaption>
+      `;
+      fig.addEventListener('click', ()=> openLightbox(item));
+      fig.addEventListener('keydown', (e)=>{
+        if(e.key === 'Enter' || e.key === ' '){
+          e.preventDefault();
+          openLightbox(item);
+        }
+      });
+      galleryHost.appendChild(fig);
     });
   }
-  function drift(el){ const amp = 6 + Math.random()*6; const dur = 6000 + Math.random()*4000; const anim = el.animate([
-      {transform:'translate(0,0)'}, {transform:`translate(${amp}px, ${-amp}px)`}, {transform:'translate(0,0)'}
-    ],{duration:dur,iterations:Infinity,easing:'ease-in-out'}); driftAnims.add(anim); anim.addEventListener?.('finish',()=>driftAnims.delete(anim)); }
-  function stopDrifts(){ driftAnims.forEach(a=>a.cancel()); driftAnims.clear(); }
-  renderQuotes(showIds);
-  document.getElementById('btnShuffle').addEventListener('click',()=>{
-    if(!motionOn()){ renderQuotes(poolIds); return; }
-    qField.animate([{opacity:1},{opacity:0},{opacity:1}],{duration:480,easing:'ease',fill:'none'});
-    setTimeout(()=>renderQuotes(poolIds), 220);
-  });
 
-  // Group threads (decorative)
-  const gsvg = document.querySelector('.group__threads');
-  if(gsvg){ const W=1000,H=220; const center=[W*0.5, H*0.5]; const svgNS='http://www.w3.org/2000/svg';
-    members.forEach((m,i)=>{ const rgen = mulberry32(hash(m.id)); const ax = 60 + rgen()* (W-120); const ay = 40 + rgen()* (H-80);
-      const path = document.createElementNS(svgNS,'path'); const mx = (ax+center[0])/2 + (rgen()-0.5)*60; const my = (ay+center[1])/2 + (rgen()-0.5)*40;
-      path.setAttribute('d', `M ${ax} ${ay} Q ${mx} ${my}, ${center[0]} ${center[1]}`); gsvg.appendChild(path); });
+  // Quotes
+  const quotesHost = $('#quotesGrid');
+  const shuffleBtn = $('#shuffleQuotes');
+
+  const pickN = (arr, n)=>{
+    const a = arr.slice();
+    for(let i=a.length-1;i>0;i--){
+      const j = Math.floor(Math.random()*(i+1));
+      [a[i],a[j]] = [a[j],a[i]];
+    }
+    return a.slice(0, Math.min(n, a.length));
+  };
+
+  function renderQuotes(){
+    if(!quotesHost) return;
+    quotesHost.innerHTML = '';
+    const chosen = pickN(DATA.quotes || [], 4);
+    chosen.forEach(q=>{
+      const el = document.createElement('div');
+      el.className = 'quote';
+      el.innerHTML = `
+        <p>“${escapeHtml(q.text)}”</p>
+        <footer>— ${escapeHtml(q.by)}</footer>
+      `;
+      quotesHost.appendChild(el);
+    });
   }
 
-  // PWA (only over http/https)
+  shuffleBtn?.addEventListener('click', renderQuotes);
+  renderQuotes();
+
+  // Overlay events
+  function bindOverlay(overlay, closeBtn){
+    const backdrop = overlay.querySelector('[data-backdrop]');
+
+    const onKeyDown = (e)=>{
+      if(e.key === 'Escape') closeOverlay(overlay);
+      trapTab(overlay, e);
+    };
+
+    closeBtn?.addEventListener('click', ()=> closeOverlay(overlay));
+    backdrop?.addEventListener('click', ()=> closeOverlay(overlay));
+
+    overlay.addEventListener('keydown', onKeyDown);
+  }
+
+  if(memberModal) bindOverlay(memberModal, memberCloseBtn);
+  if(lightbox) bindOverlay(lightbox, lightboxCloseBtn);
+
+  // PWA SW register
   if('serviceWorker' in navigator && /^https?:/.test(location.protocol)){
     navigator.serviceWorker.register('sw.js').catch(()=>{});
+  }
+
+  function escapeHtml(s){
+    return String(s ?? '')
+      .replace(/&/g,'&amp;')
+      .replace(/</g,'&lt;')
+      .replace(/>/g,'&gt;')
+      .replace(/"/g,'&quot;')
+      .replace(/'/g,'&#39;');
+  }
+
+  function escapeAttr(s){
+    return escapeHtml(s);
   }
 })();
