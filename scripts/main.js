@@ -114,6 +114,87 @@
     return btn;
   }
 
+  const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+  const TAG_EMOJI_MAP = {
+    // roles / vibes
+    'creator': ['🧑‍💻','🛠️','✨','📌'],
+    'tech': ['💻','🧠','🔧','⚡'],
+    'leadership': ['👑','🧭','🦁'],
+    'chef': ['👨‍🍳','🍳','🍜','🔥'],
+    'warmth': ['🫶','☀️','🥹'],
+    'routine': ['🗓️','✅','⏰'],
+    'strategy': ['♟️','🧠','🎯'],
+    'money': ['💸','💰','📈'],
+    'gaming': ['🎮','🕹️','🏆'],
+    'plot twist': ['😈','🌀','🎭'],
+    'chaos': ['💥','🌪️','😵‍💫'],
+    'charm': ['😎','✨','🕶️'],
+    'silent': ['🤫','🫥','🌙'],
+    'presence': ['🧍','🌿','🫡'],
+    'consistency': ['📌','✅','📖'],
+    'mita': ['🤝','🫶','🧿'],
+    'bond': ['🫂','🔗','💛'],
+    'inside-joke': ['🤣','🤭','🗯️'],
+    'naughty': ['😜','😈','🔥'],
+    'energy': ['⚡','🔥','🚀'],
+    'fun': ['🎉','😄','🎈'],
+    'innocent': ['😇','🕊️','🌸'],
+    'calm': ['🧘','🌿','🫧'],
+    'trust': ['🤞','🛡️','✅'],
+    'reserved': ['🫥','🔒','📝'],
+    'tbd': ['⏳','🧩','❔']
+  };
+
+  function normalizeTagLabel(label){
+    return String(label || '').trim().toLowerCase();
+  }
+
+  function pickEmojiForTag(tag){
+    // Allow per-tag override in data:
+    // { label: 'Creator', emojis: ['🧑‍💻','✨'] }
+    const custom = Array.isArray(tag?.emojis) ? tag.emojis : (typeof tag?.emoji === 'string' ? [tag.emoji] : null);
+    const label = normalizeTagLabel(tag?.label);
+    const pool = (custom && custom.length) ? custom : (TAG_EMOJI_MAP[label] || ['✨','🪄','⭐']);
+    return pool[Math.floor(Math.random() * pool.length)];
+  }
+
+  function spawnEmojiBurst(anchorEl, emoji){
+    const r = anchorEl.getBoundingClientRect();
+    const baseX = r.left + r.width/2;
+    const baseY = r.top + r.height/2;
+
+    const count = prefersReducedMotion ? 1 : 6;
+
+    for(let i=0;i<count;i++){
+      const el = document.createElement('span');
+      el.className = 'emoji-pop';
+      el.textContent = emoji;
+      el.style.left = `${baseX}px`;
+      el.style.top = `${baseY}px`;
+
+      document.body.appendChild(el);
+
+      if(prefersReducedMotion){
+        el.animate([
+          { transform: 'translate(-50%, -50%) scale(1)', opacity: 1 },
+          { transform: 'translate(-50%, -78%) scale(1)', opacity: 0 }
+        ], { duration: 520, easing: 'ease-out', fill: 'forwards' }).finished.finally(()=>el.remove());
+        continue;
+      }
+
+      const dx = (Math.random()-0.5) * 90;
+      const dy = - (40 + Math.random()*70);
+      const rot = (Math.random()-0.5) * 40;
+      const dur = 650 + Math.random()*250;
+      el.animate([
+        { transform: 'translate(-50%, -50%) scale(0.9) rotate(0deg)', opacity: 0.0 },
+        { transform: 'translate(-50%, -50%) scale(1.05) rotate(0deg)', opacity: 1.0, offset: 0.12 },
+        { transform: `translate(calc(-50% + ${dx}px), calc(-50% + ${dy}px)) scale(1) rotate(${rot}deg)`, opacity: 0.0 }
+      ], { duration: dur, easing: 'cubic-bezier(0.22,1,0.36,1)', fill: 'forwards' }).finished.finally(()=>el.remove());
+    }
+  }
+
   function openMember(m){
     memberImg.src = m.portrait;
     memberImg.alt = `Portrait of ${m.name}`;
@@ -130,10 +211,18 @@
 
     memberTags.innerHTML = '';
     (m.identityTags || []).forEach(t=>{
-      const span = document.createElement('span');
-      span.className = `tag ${t.isAccent? 'tag--accent':''}`;
-      span.textContent = t.label;
-      memberTags.appendChild(span);
+      const btn = document.createElement('button');
+      btn.type = 'button';
+      btn.className = `tag tag-btn ${t.isAccent? 'tag--accent':''}`;
+      btn.textContent = t.label;
+      btn.setAttribute('aria-label', `Tag: ${t.label}. Tap for an emoji.`);
+
+      btn.addEventListener('click', ()=>{
+        const emoji = pickEmojiForTag(t);
+        spawnEmojiBurst(btn, emoji);
+      });
+
+      memberTags.appendChild(btn);
     });
 
     openOverlay(memberModal);

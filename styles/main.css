@@ -248,6 +248,29 @@ img{max-width:100%;display:block}
 .tag{font-size:12px;padding:6px 10px;border-radius:999px;border:1px solid rgba(30,36,29,0.12);background:rgba(252,249,234,0.80);color:rgba(30,36,29,0.78)}
 .tag--accent{background:rgba(255,162,57,0.16);border-color:rgba(255,162,57,0.28)}
 
+/* Fun tags in the member modal */
+.tag-btn{
+  appearance:none;
+  -webkit-appearance:none;
+  cursor:pointer;
+  font:inherit;
+  line-height:1;
+  transition: transform var(--dur-xs) var(--ease), box-shadow var(--dur-xs) var(--ease);
+}
+.tag-btn:hover{transform:translateY(-1px);box-shadow:0 8px 16px rgba(30,36,29,0.10)}
+.tag-btn:active{transform:translateY(0px) scale(0.98)}
+
+.emoji-pop{
+  position:fixed;
+  left:0;
+  top:0;
+  transform: translate(-50%, -50%);
+  font-size:24px;
+  z-index: 4000;
+  pointer-events:none;
+  filter: drop-shadow(0 10px 14px rgba(30,36,29,0.22));
+}
+
 /* Timeline */
 .timeline{margin-top:26px;display:grid;gap:14px}
 .tl-item{padding:18px 18px 18px 16px;display:grid;grid-template-columns: 110px 1fr;gap:14px}
