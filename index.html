@@ -194,6 +194,23 @@
           <p class="lead">Add real photos any time — study nights, meals, celebrations, and the road to Japan.</p>
         </div>
 
+        <div class="upload-bar" data-reveal>
+          <div class="upload-bar__left">
+            <div class="kicker">Add a memory</div>
+            <div class="upload-bar__hint">Upload a photo to the MessVerse gallery (stored in Cloudinary).</div>
+          </div>
+          <form id="memoryUploadForm" class="upload-bar__form" autocomplete="off">
+            <label class="upload-btn" for="memoryFile">
+              <span class="upload-btn__icon">⬆</span>
+              <span>Choose photo</span>
+            </label>
+            <input id="memoryFile" name="file" type="file" accept="image/*" hidden />
+            <input id="memoryCaption" name="caption" class="upload-input" type="text" placeholder="Caption (optional)" maxlength="90" />
+            <button id="memoryUploadBtn" class="btn btn--primary" type="submit">Upload</button>
+          </form>
+          <div id="memoryUploadStatus" class="upload-bar__status" aria-live="polite"></div>
+        </div>
+
         <div id="galleryGrid" class="gallery" aria-label="Gallery" data-reveal></div>
       </div>
     </section>
@@ -258,6 +275,19 @@
           <h3 id="memberName" class="overlay__title">Member</h3>
           <div id="memberTitle" class="overlay__subtitle"></div>
           <div id="memberTags" class="tags" style="margin-top:12px"></div>
+
+          <div class="member-upload" style="margin-top:14px">
+            <div class="kicker">Luxury portrait</div>
+            <div class="member-upload__row">
+              <label class="upload-btn" for="memberPortraitFile">
+                <span class="upload-btn__icon">⬆</span>
+                <span>Upload new portrait</span>
+              </label>
+              <input id="memberPortraitFile" type="file" accept="image/*" hidden />
+              <div id="memberPortraitStatus" class="member-upload__status" aria-live="polite"></div>
+            </div>
+          </div>
+
           <p id="memberBio" class="overlay__text"></p>
           <ul id="memberHighlights" class="overlay__list"></ul>
         </div>
@@ -280,6 +310,11 @@
       </div>
     </div>
   </div>
+
+  <!-- Backend API base URL (Render). Example:
+       window.MV_API_BASE = 'https://your-service.onrender.com'
+       Leave empty to disable uploads. -->
+  <script>window.MV_API_BASE = window.MV_API_BASE || '';</script>
 
   <!-- Embedded data model -->
   <script id="mv-data" type="application/json">{
