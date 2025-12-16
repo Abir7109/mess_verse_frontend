@@ -186,14 +186,15 @@
         el.animate([
           { transform: 'translate(-50%, -50%) scale(1)', opacity: 1 },
           { transform: 'translate(-50%, -78%) scale(1)', opacity: 0 }
-        ], { duration: 520, easing: 'ease-out', fill: 'forwards' }).finished.finally(()=>el.remove());
+        ], { duration: 820, easing: 'ease-out', fill: 'forwards' }).finished.finally(()=>el.remove());
         return;
       }
 
       const dx = (Math.random()-0.5) * (kind === 'sticker' ? 120 : 90);
       const dy = - (kind === 'sticker' ? (60 + Math.random()*110) : (40 + Math.random()*70));
       const rot = (Math.random()-0.5) * (kind === 'sticker' ? 90 : 40);
-      const dur = (kind === 'sticker' ? 820 : 650) + Math.random()*250;
+      // Slower, more readable burst
+      const dur = (kind === 'sticker' ? 1300 : 1100) + Math.random()*350;
       const scale0 = kind === 'sticker' ? 0.85 : 0.9;
       const scale1 = kind === 'sticker' ? 1.05 : 1.05;
 
