@@ -11,6 +11,26 @@
   const API_BASE = (window.MV_API_BASE ? String(window.MV_API_BASE) : '').replace(/\/+$/,'');
   const apiUrl = (p)=> API_BASE ? `${API_BASE}${p}` : null;
 
+  // Admin key (used only if backend has MV_API_KEY set)
+  const ADMIN_KEY_STORAGE = 'mv_admin_key';
+  const getAdminKey = ()=> {
+    try{ return sessionStorage.getItem(ADMIN_KEY_STORAGE) || ''; }catch{ return ''; }
+  };
+  const setAdminKey = (v)=>{
+    try{
+      if(v) sessionStorage.setItem(ADMIN_KEY_STORAGE, v);
+      else sessionStorage.removeItem(ADMIN_KEY_STORAGE);
+    }catch{}
+  };
+
+  const fetchWithAdmin = (url, opts={})=>{
+    const o = { ...opts };
+    o.headers = new Headers(o.headers || {});
+    const key = getAdminKey();
+    if(key) o.headers.set('X-MV-KEY', key);
+    return fetch(url, o);
+  };
+
   const portraitOverrides = new Map();
 
   // Reveal on scroll
@@ -64,6 +84,16 @@
   const memberTags = $('#memberTags');
   const memberPortraitFile = $('#memberPortraitFile');
   const memberPortraitStatus = $('#memberPortraitStatus');
+
+  // Admin UI
+  const adminOpenBtn = $('#adminOpen');
+  const adminState = $('#adminState');
+  const adminModal = $('#adminModal');
+  const adminCloseBtn = $('#adminClose');
+  const adminKeyInput = $('#adminKeyInput');
+  const adminSaveBtn = $('#adminSave');
+  const adminClearBtn = $('#adminClear');
+  const adminStatus = $('#adminStatus');
 
   let lastFocus = null;
 
@@ -307,7 +337,7 @@
     fd.append('file', file);
 
     try{
-      const res = await fetch(url, { method: 'POST', body: fd });
+      const res = await fetchWithAdmin(url, { method: 'POST', body: fd });
       const json = await res.json().catch(()=>null);
       if(!res.ok) throw new Error(json?.error || 'Upload failed');
 
@@ -397,10 +427,13 @@
   const lightboxImg = $('#lightboxImg');
   const lightboxCaption = $('#lightboxCaption');
   const lightboxCloseBtn = $('#lightboxClose');
+  const lightboxDownload = $('#lightboxDownload');
+  const lightboxShare = $('#lightboxShare');
 
   const memoryUploadForm = $('#memoryUploadForm');
   const memoryFile = $('#memoryFile');
   const memoryCaption = $('#memoryCaption');
+  const memorySearch = $('#memorySearch');
   const memoryUploadStatus = $('#memoryUploadStatus');
 
   function normalizeGalleryItem(item){
@@ -413,14 +446,40 @@
     };
   }
 
-  let galleryItems = (DATA.gallery || []).map(normalizeGalleryItem);
+  let galleryItemsAll = (DATA.gallery || []).map(normalizeGalleryItem);
+  let galleryItems = galleryItemsAll.slice();
+  let currentLightboxItem = null;
 
   function openLightbox(item){
+    currentLightboxItem = item;
     lightboxImg.src = item.src;
     lightboxImg.alt = item.alt || 'Gallery image';
     lightboxCaption.textContent = item.caption || '';
+
+    if(lightboxDownload){
+      lightboxDownload.href = item.src;
+    }
+
     openOverlay(lightbox);
   }
+
+  lightboxShare?.addEventListener('click', async ()=>{
+    if(!currentLightboxItem?.src) return;
+    const url = currentLightboxItem.src;
+    try{
+      if(navigator.share){
+        await navigator.share({ title: 'MessVerse memory', text: currentLightboxItem.caption || '', url });
+        return;
+      }
+    }catch{}
+
+    try{
+      await navigator.clipboard.writeText(url);
+      setStatus(memoryUploadStatus, 'Link copied.');
+    }catch{
+      setStatus(memoryUploadStatus, url);
+    }
+  });
 
   async function deleteMemory(item){
     const url = item?.id ? apiUrl(`/api/memories/${encodeURIComponent(item.id)}`) : null;
@@ -434,7 +493,7 @@
 
     setStatus(memoryUploadStatus, 'Removing…');
     try{
-      const res = await fetch(url, { method: 'DELETE' });
+      const res = await fetchWithAdmin(url, { method: 'DELETE' });
       const json = await res.json().catch(()=>null);
       if(!res.ok) throw new Error(json?.error || 'Remove failed');
 
@@ -496,10 +555,11 @@
       const memories = Array.isArray(json?.memories) ? json.memories : [];
       const mapped = memories.map(m => ({ id: m._id || m.id || null, src: m.url, alt: m.alt || '', caption: m.caption || '' }));
       // put newest first (backend already returns desc)
-      const existingSrc = new Set(galleryItems.map(x=>x.src));
+      const existingSrc = new Set(galleryItemsAll.map(x=>x.src));
       mapped.forEach(m=>{
-        if(m?.src && !existingSrc.has(m.src)) galleryItems.unshift(m);
+        if(m?.src && !existingSrc.has(m.src)) galleryItemsAll.unshift(m);
       });
+      applyGalleryFilter();
     }catch{}
   }
 
@@ -527,14 +587,14 @@
     if(memoryCaption?.value) fd.append('caption', memoryCaption.value);
 
     try{
-      const res = await fetch(url, { method: 'POST', body: fd });
+      const res = await fetchWithAdmin(url, { method: 'POST', body: fd });
       const json = await res.json().catch(()=>null);
       if(!res.ok) throw new Error(json?.error || 'Upload failed');
 
       const m = json?.memory;
       const item = { id: m?._id || m?.id || null, src: m.url, alt: m.alt || '', caption: m.caption || '' };
-      galleryItems.unshift(item);
-      renderGallery();
+      galleryItemsAll.unshift(item);
+      applyGalleryFilter();
 
       if(memoryFile) memoryFile.value = '';
       if(memoryCaption) memoryCaption.value = '';
@@ -544,10 +604,70 @@
     }
   }
 
+  function applyGalleryFilter(){
+    const q = String(memorySearch?.value || '').trim().toLowerCase();
+    if(!q){
+      galleryItems = galleryItemsAll.slice();
+      renderGallery();
+      return;
+    }
+
+    galleryItems = galleryItemsAll.filter(item => {
+      const cap = String(item.caption || '').toLowerCase();
+      const alt = String(item.alt || '').toLowerCase();
+      return cap.includes(q) || alt.includes(q);
+    });
+    renderGallery();
+  }
+
+  memorySearch?.addEventListener('input', ()=>{
+    applyGalleryFilter();
+  });
+
   memoryUploadForm?.addEventListener('submit', (e)=>{
     e.preventDefault();
     uploadMemory();
   });
+
+  function syncAdminUI(){
+    const key = getAdminKey();
+    if(adminState){
+      adminState.textContent = key ? 'Unlocked' : 'Locked';
+      adminState.classList.toggle('is-on', Boolean(key));
+    }
+  }
+
+  adminOpenBtn?.addEventListener('click', ()=>{
+    if(!adminModal) return;
+    if(adminKeyInput) adminKeyInput.value = getAdminKey();
+    setStatus(adminStatus, '');
+    openOverlay(adminModal);
+  });
+
+  const closeAdmin = ()=> adminModal && closeOverlay(adminModal);
+  adminCloseBtn?.addEventListener('click', closeAdmin);
+
+  adminSaveBtn?.addEventListener('click', ()=>{
+    const v = String(adminKeyInput?.value || '').trim();
+    if(!v){
+      setStatus(adminStatus, 'Enter a key.');
+      return;
+    }
+    setAdminKey(v);
+    syncAdminUI();
+    setStatus(adminStatus, 'Saved for this session.');
+    closeAdmin();
+  });
+
+  adminClearBtn?.addEventListener('click', ()=>{
+    setAdminKey('');
+    if(adminKeyInput) adminKeyInput.value = '';
+    syncAdminUI();
+    setStatus(adminStatus, 'Cleared.');
+  });
+
+  // Initialize
+  syncAdminUI();
 
   // Quotes
   const quotesHost = $('#quotesGrid');
@@ -666,6 +786,7 @@
 
   if(memberModal) bindOverlay(memberModal, memberCloseBtn);
   if(lightbox) bindOverlay(lightbox, lightboxCloseBtn);
+  if(adminModal) bindOverlay(adminModal, adminCloseBtn);
 
   // PWA SW register
   if('serviceWorker' in navigator && /^https?:/.test(location.protocol)){

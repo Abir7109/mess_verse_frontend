@@ -270,15 +270,37 @@ img{max-width:100%;display:block}
   background: rgba(255,255,255,0.50);
   box-shadow:var(--shadow-soft);
   display:flex;
-  align-items:center;
+  align-items:flex-start;
   justify-content:space-between;
   gap:14px;
   flex-wrap:wrap;
 }
 .upload-bar__left{display:flex;flex-direction:column;gap:6px}
+.upload-bar__right{display:flex;align-items:center;gap:12px;flex-wrap:wrap;justify-content:flex-end}
 .upload-bar__hint{font-size:13px;color:rgba(30,36,29,0.74);max-width:58ch}
 .upload-bar__form{display:flex;align-items:center;gap:10px;flex-wrap:wrap}
 .upload-bar__status{font-size:12px;color:rgba(30,36,29,0.75)}
+.upload-bar__admin{display:flex;align-items:center;gap:10px}
+.upload-bar__filter{display:flex;align-items:center}
+
+.admin-pill{
+  font-size:12px;
+  padding:6px 10px;
+  border-radius:999px;
+  border:1px solid rgba(30,36,29,0.14);
+  background: rgba(252,249,234,0.70);
+  color: rgba(30,36,29,0.80);
+}
+.admin-pill.is-on{background: rgba(151,168,122,0.18);border-color: rgba(151,168,122,0.32)}
+
+.btn--ghost{
+  background: rgba(255,255,255,0.45);
+}
+
+.upload-input--sm{height:40px;min-width: 190px}
+
+.admin-form{margin-top:14px;display:flex;flex-direction:column;gap:12px}
+.admin-form__row{display:flex;gap:10px;flex-wrap:wrap}
 
 .upload-btn{
   display:inline-flex;
@@ -472,6 +494,8 @@ img{max-width:100%;display:block}
 .overlay__body{padding:22px}
 .overlay__title{margin:0;font-family:var(--font-serif);font-size:28px}
 .overlay__subtitle{margin:8px 0 0;color:rgba(30,36,29,0.70)}
+
+.lightbox-actions{display:flex;gap:10px;flex-wrap:wrap}
 .overlay__text{margin:16px 0 0;color:rgba(30,36,29,0.84);line-height:1.9}
 .overlay__list{margin:14px 0 0;padding-left:18px;color:rgba(30,36,29,0.82);line-height:1.9}
 
@@ -526,9 +550,12 @@ img{max-width:100%;display:block}
   /* Upload UI: avoid min-width overflow, stack nicely */
   .upload-bar{padding:12px}
   .upload-bar__left{width:100%}
+  .upload-bar__right{width:100%;justify-content:flex-start}
+  .upload-bar__admin{width:100%;justify-content:space-between}
   .upload-bar__form{width:100%}
   .upload-btn{width:100%;justify-content:center}
   .upload-input{min-width:0;width:100%}
+  .upload-bar__filter{width:100%}
   #memoryUploadBtn{width:100%}
 
   /* Lightbox: keep it inside viewport on mobile */
