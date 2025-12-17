@@ -6,5 +6,11 @@
   "background_color": "#FCF9EA",
   "theme_color": "#97A87A",
   "description": "A luxury, identity-driven archive of story, ritual, and friendship.",
-  "icons": []
+  "icons": [
+    {
+      "src": "assets/logo.png",
+      "type": "image/png",
+      "sizes": "512x512"
+    }
+  ]
 }
