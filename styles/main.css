@@ -368,6 +368,22 @@ img{max-width:100%;display:block}
 .figure:hover{transform:translateY(-3px);box-shadow:var(--shadow)}
 .figure figcaption{padding:12px 14px;color:rgba(30,36,29,0.72);font-size:13px;line-height:1.6}
 
+.figcap{display:flex;align-items:center;justify-content:space-between;gap:10px}
+.figcap__text{min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.mem-del{
+  border:1px solid rgba(30,36,29,0.14);
+  background: rgba(255,255,255,0.55);
+  color:rgba(30,36,29,0.85);
+  font:inherit;
+  font-size:12px;
+  padding:8px 10px;
+  border-radius:999px;
+  cursor:pointer;
+  flex:0 0 auto;
+}
+.mem-del:hover{background: rgba(255,162,57,0.14);border-color: rgba(255,162,57,0.30)}
+.mem-del:active{transform: scale(0.98)}
+
 /* Quotes */
 .quotes{
   margin-top:26px;

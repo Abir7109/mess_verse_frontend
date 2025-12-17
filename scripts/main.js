@@ -406,6 +406,7 @@
   function normalizeGalleryItem(item){
     // unify shape for both embedded and backend memories
     return {
+      id: item.id || item._id || null,
       src: item.src || item.url,
       alt: item.alt || item.caption || 'MessVerse memory',
       caption: item.caption || item.captionText || ''
@@ -421,6 +422,30 @@
     openOverlay(lightbox);
   }
 
+  async function deleteMemory(item){
+    const url = item?.id ? apiUrl(`/api/memories/${encodeURIComponent(item.id)}`) : null;
+    if(!url){
+      setStatus(memoryUploadStatus, 'This memory cannot be removed (no backend id).');
+      return;
+    }
+
+    const ok = window.confirm('Remove this memory?');
+    if(!ok) return;
+
+    setStatus(memoryUploadStatus, 'Removing…');
+    try{
+      const res = await fetch(url, { method: 'DELETE' });
+      const json = await res.json().catch(()=>null);
+      if(!res.ok) throw new Error(json?.error || 'Remove failed');
+
+      galleryItems = galleryItems.filter(x => x !== item);
+      renderGallery();
+      setStatus(memoryUploadStatus, 'Removed.');
+    }catch(e){
+      setStatus(memoryUploadStatus, String(e?.message || e || 'Remove failed'));
+    }
+  }
+
   function renderGallery(){
     if(!galleryHost) return;
     galleryHost.innerHTML = '';
@@ -430,10 +455,18 @@
       fig.tabIndex = 0;
       fig.setAttribute('role','button');
       fig.setAttribute('aria-label', `Open gallery item: ${item.caption || 'image'}`);
+
+      const captionText = escapeHtml(item.caption || '');
+      const canRemove = Boolean(item.id);
+
       fig.innerHTML = `
         <img src="${escapeAttr(item.src)}" alt="${escapeAttr(item.alt || '')}" loading="lazy" />
-        <figcaption>${escapeHtml(item.caption || '')}</figcaption>
+        <figcaption class="figcap">
+          <span class="figcap__text">${captionText}</span>
+          ${canRemove ? '<button class="mem-del" type="button" aria-label="Remove memory">Remove</button>' : ''}
+        </figcaption>
       `;
+
       fig.addEventListener('click', ()=> openLightbox(item));
       fig.addEventListener('keydown', (e)=>{
         if(e.key === 'Enter' || e.key === ' '){
@@ -441,6 +474,14 @@
           openLightbox(item);
         }
       });
+
+      const delBtn = fig.querySelector('.mem-del');
+      delBtn?.addEventListener('click', (e)=>{
+        e.preventDefault();
+        e.stopPropagation();
+        deleteMemory(item);
+      });
+
       galleryHost.appendChild(fig);
     });
   }
@@ -453,7 +494,7 @@
       if(!res.ok) return;
       const json = await res.json();
       const memories = Array.isArray(json?.memories) ? json.memories : [];
-      const mapped = memories.map(m => ({ src: m.url, alt: m.alt || '', caption: m.caption || '' }));
+      const mapped = memories.map(m => ({ id: m._id || m.id || null, src: m.url, alt: m.alt || '', caption: m.caption || '' }));
       // put newest first (backend already returns desc)
       const existingSrc = new Set(galleryItems.map(x=>x.src));
       mapped.forEach(m=>{
@@ -491,7 +532,7 @@
       if(!res.ok) throw new Error(json?.error || 'Upload failed');
 
       const m = json?.memory;
-      const item = { src: m.url, alt: m.alt || '', caption: m.caption || '' };
+      const item = { id: m?._id || m?.id || null, src: m.url, alt: m.alt || '', caption: m.caption || '' };
       galleryItems.unshift(item);
       renderGallery();
 
