@@ -154,8 +154,10 @@ img{max-width:100%;display:block}
   transition: transform var(--dur-xs) var(--ease), box-shadow var(--dur-xs) var(--ease), background var(--dur-s) var(--ease);
 }
 .btn:hover{transform:translateY(-1px);box-shadow:var(--shadow-soft)}
+.btn:active{transform:translateY(0px) scale(0.99)}
 .btn--primary{background:rgba(255,162,57,0.92);border-color:rgba(255,162,57,0.60)}
 .btn--primary:hover{background:rgba(255,162,57,1)}
+.btn--sm{padding:8px 12px;font-size:12px}
 
 /* Hero */
 .hero{padding:72px 0 34px}
@@ -301,6 +303,19 @@ img{max-width:100%;display:block}
 
 .admin-form{margin-top:14px;display:flex;flex-direction:column;gap:12px}
 .admin-form__row{display:flex;gap:10px;flex-wrap:wrap}
+
+.audit-log{
+  border: 1px solid rgba(30,36,29,0.12);
+  border-radius: 18px;
+  background: rgba(252,249,234,0.70);
+  padding: 10px 12px;
+  max-height: 220px;
+  overflow: auto;
+  font-size: 12px;
+  color: rgba(30,36,29,0.80);
+}
+.audit-log ul{margin:0;padding-left:18px}
+.audit-log li{margin:6px 0;line-height:1.5}
 
 .upload-btn{
   display:inline-flex;

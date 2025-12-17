@@ -24,6 +24,16 @@
   <meta property="og:image:type" content="image/png" />
   <meta property="og:image:alt" content="MessVerse logo" />
 
+  <!-- Structured data (SEO) -->
+  <script type="application/ld+json">{
+    "@context": "https://schema.org",
+    "@type": "WebSite",
+    "name": "MessVerse",
+    "url": "https://mess-verse.vercel.app/",
+    "description": "MessVerse is our mess story since August 2025 — built around identity, friendship, and the goal of going to Japan.",
+    "inLanguage": "en"
+  }</script>
+
   <meta name="twitter:card" content="summary_large_image" />
   <meta name="twitter:title" content="MessVerse — Our Japanese Journey" />
   <meta name="twitter:description" content="MessVerse is our mess story since August 2025 — built around identity, friendship, and the goal of going to Japan." />
@@ -58,7 +68,10 @@
         <a href="#quotes">Voices</a>
       </nav>
 
-      <a class="btn btn--primary" href="#cta">Enter the circle</a>
+      <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap;justify-content:flex-end">
+        <button id="pwaInstall" class="btn btn--ghost" type="button" hidden>Install app</button>
+        <a class="btn btn--primary" href="#cta">Enter the circle</a>
+      </div>
     </div>
   </div>
 
@@ -361,10 +374,16 @@
         <p class="overlay__text" style="margin-top:10px">Enter the admin key to enable uploading/removing memories and portraits.</p>
         <div class="admin-form">
           <input id="adminKeyInput" class="upload-input" type="password" placeholder="Admin key" autocomplete="current-password" />
+          <input id="adminNameInput" class="upload-input" type="text" placeholder="Admin name (optional)" maxlength="32" autocomplete="nickname" />
           <div class="admin-form__row">
             <button id="adminSave" class="btn btn--primary" type="button">Save</button>
             <button id="adminClear" class="btn" type="button">Clear</button>
           </div>
+          <div class="admin-form__row">
+            <button id="auditToggle" class="btn btn--ghost" type="button">Show audit log</button>
+            <button id="auditClear" class="btn" type="button">Clear audit log</button>
+          </div>
+          <div id="auditLog" class="audit-log" hidden></div>
           <div id="adminStatus" class="upload-bar__status" aria-live="polite"></div>
         </div>
       </div>

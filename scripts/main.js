@@ -12,22 +12,85 @@
   const apiUrl = (p)=> API_BASE ? `${API_BASE}${p}` : null;
 
   // Admin key (used only if backend has MV_API_KEY set)
+  // Auto-lock is implemented client-side via a TTL.
   const ADMIN_KEY_STORAGE = 'mv_admin_key';
-  const getAdminKey = ()=> {
+  const ADMIN_TS_STORAGE = 'mv_admin_key_ts';
+  const ADMIN_TTL_MS = 10 * 60 * 1000; // 10 minutes
+
+  const getAdminKeyRaw = ()=>{
     try{ return sessionStorage.getItem(ADMIN_KEY_STORAGE) || ''; }catch{ return ''; }
   };
+
+  const getAdminKeyTs = ()=>{
+    try{
+      const v = sessionStorage.getItem(ADMIN_TS_STORAGE);
+      const n = Number(v);
+      return Number.isFinite(n) ? n : 0;
+    }catch{ return 0; }
+  };
+
+  const setAdminKeyTs = (ts)=>{
+    try{
+      if(ts) sessionStorage.setItem(ADMIN_TS_STORAGE, String(ts));
+      else sessionStorage.removeItem(ADMIN_TS_STORAGE);
+    }catch{}
+  };
+
+  const clearAdminKey = ()=>{
+    try{
+      sessionStorage.removeItem(ADMIN_KEY_STORAGE);
+      sessionStorage.removeItem(ADMIN_TS_STORAGE);
+    }catch{}
+  };
+
+  const isAdminExpired = ()=>{
+    const key = getAdminKeyRaw();
+    if(!key) return false;
+    const ts = getAdminKeyTs();
+    if(!ts) return false;
+    return (Date.now() - ts) > ADMIN_TTL_MS;
+  };
+
+  const getAdminKey = ()=>{
+    const key = getAdminKeyRaw();
+    if(!key) return '';
+
+    if(isAdminExpired()){
+      clearAdminKey();
+      return '';
+    }
+
+    // Ensure a timestamp exists for older sessions.
+    if(!getAdminKeyTs()) setAdminKeyTs(Date.now());
+    return key;
+  };
+
   const setAdminKey = (v)=>{
     try{
-      if(v) sessionStorage.setItem(ADMIN_KEY_STORAGE, v);
-      else sessionStorage.removeItem(ADMIN_KEY_STORAGE);
+      if(v){
+        sessionStorage.setItem(ADMIN_KEY_STORAGE, v);
+        setAdminKeyTs(Date.now());
+      }else{
+        clearAdminKey();
+      }
     }catch{}
+  };
+
+  const touchAdminSession = ()=>{
+    const key = getAdminKeyRaw();
+    if(!key) return;
+    setAdminKeyTs(Date.now());
   };
 
   const fetchWithAdmin = (url, opts={})=>{
     const o = { ...opts };
     o.headers = new Headers(o.headers || {});
     const key = getAdminKey();
-    if(key) o.headers.set('X-MV-KEY', key);
+    if(key){
+      o.headers.set('X-MV-KEY', key);
+      // Only extend the session when we actually use the key.
+      touchAdminSession();
+    }
     return fetch(url, o);
   };
 
@@ -91,9 +154,16 @@
   const adminModal = $('#adminModal');
   const adminCloseBtn = $('#adminClose');
   const adminKeyInput = $('#adminKeyInput');
+  const adminNameInput = $('#adminNameInput');
   const adminSaveBtn = $('#adminSave');
   const adminClearBtn = $('#adminClear');
+  const auditToggleBtn = $('#auditToggle');
+  const auditClearBtn = $('#auditClear');
+  const auditLogHost = $('#auditLog');
   const adminStatus = $('#adminStatus');
+
+  // PWA install
+  const pwaInstallBtn = $('#pwaInstall');
 
   let lastFocus = null;
 
@@ -348,6 +418,7 @@
         refreshMemberCardPortrait(currentMember.id);
       }
       setStatus(memberPortraitStatus, 'Updated.');
+      addAudit('update portrait', `${currentMember.name || currentMember.id} • ${file.name}`);
     }catch(e){
       setStatus(memberPortraitStatus, String(e?.message || e || 'Upload failed'));
     }
@@ -430,6 +501,9 @@
   const lightboxDownload = $('#lightboxDownload');
   const lightboxShare = $('#lightboxShare');
 
+  // Delete undo (client-side): delay permanent backend delete for a short window.
+  let pendingDelete = null;
+
   const memoryUploadForm = $('#memoryUploadForm');
   const memoryFile = $('#memoryFile');
   const memoryCaption = $('#memoryCaption');
@@ -444,6 +518,29 @@
       alt: item.alt || item.caption || 'MessVerse memory',
       caption: item.caption || item.captionText || ''
     };
+  }
+
+  function cloudinaryWithTransform(url, transform){
+    const u = String(url || '');
+    if(!u.includes('res.cloudinary.com')) return u;
+    const marker = '/upload/';
+    const i = u.indexOf(marker);
+    if(i === -1) return u;
+    return u.slice(0, i + marker.length) + transform.replace(/^\/+|\/+$/g,'') + '/' + u.slice(i + marker.length);
+  }
+
+  function getGalleryThumbUrl(url){
+    // Reasonable thumb for grid (auto format + quality)
+    return cloudinaryWithTransform(url, 'w_720,q_auto,f_auto');
+  }
+
+  function getGallerySrcset(url){
+    const u = String(url || '');
+    if(!u.includes('res.cloudinary.com')) return '';
+    const a = cloudinaryWithTransform(u, 'w_420,q_auto,f_auto');
+    const b = cloudinaryWithTransform(u, 'w_720,q_auto,f_auto');
+    const c = cloudinaryWithTransform(u, 'w_1080,q_auto,f_auto');
+    return `${a} 420w, ${b} 720w, ${c} 1080w`;
   }
 
   let galleryItemsAll = (DATA.gallery || []).map(normalizeGalleryItem);
@@ -481,6 +578,104 @@
     }
   });
 
+  function setStatusHtml(el, html){
+    if(!el) return;
+    el.innerHTML = html || '';
+  }
+
+  function getAuditWho(){
+    try{ return String(localStorage.getItem('mv_admin_name') || '').trim(); }catch{ return ''; }
+  }
+
+  function setAuditWho(name){
+    try{
+      const v = String(name || '').trim();
+      if(v) localStorage.setItem('mv_admin_name', v);
+      else localStorage.removeItem('mv_admin_name');
+    }catch{}
+  }
+
+  function loadAudit(){
+    try{
+      const raw = localStorage.getItem('mv_audit_log');
+      const a = JSON.parse(raw || '[]');
+      return Array.isArray(a) ? a : [];
+    }catch{ return []; }
+  }
+
+  function saveAudit(entries){
+    try{ localStorage.setItem('mv_audit_log', JSON.stringify(entries || [])); }catch{}
+  }
+
+  function addAudit(action, detail){
+    const who = getAuditWho() || 'Admin';
+    const entry = {
+      at: new Date().toISOString(),
+      who,
+      action: String(action || '').trim(),
+      detail: String(detail || '').trim()
+    };
+    const all = loadAudit();
+    all.push(entry);
+    // cap size
+    while(all.length > 120) all.shift();
+    saveAudit(all);
+    renderAuditLog();
+  }
+
+  function renderAuditLog(){
+    if(!auditLogHost) return;
+    const entries = loadAudit().slice(-40).reverse();
+    if(entries.length === 0){
+      auditLogHost.innerHTML = '<div>No audit entries yet.</div>';
+      return;
+    }
+
+    const items = entries.map(e=>{
+      const at = escapeHtml(e.at);
+      const who = escapeHtml(e.who);
+      const action = escapeHtml(e.action);
+      const detail = escapeHtml(e.detail);
+      return `<li><b>${who}</b> • ${action}<br/><span style="opacity:.78">${detail || ''}</span><br/><span style="opacity:.62">${at}</span></li>`;
+    }).join('');
+
+    auditLogHost.innerHTML = `<ul>${items}</ul>`;
+  }
+
+  function clearPendingDelete(){
+    if(!pendingDelete) return;
+    clearTimeout(pendingDelete.timeoutId);
+    pendingDelete = null;
+  }
+
+  async function commitPendingDelete(){
+    if(!pendingDelete) return;
+
+    const { item, url } = pendingDelete;
+    const done = ()=>{
+      clearPendingDelete();
+      setStatus(memoryUploadStatus, 'Removed.');
+    };
+
+    try{
+      const res = await fetchWithAdmin(url, { method: 'DELETE' });
+      const json = await res.json().catch(()=>null);
+      if(!res.ok) throw new Error(json?.error || 'Remove failed');
+      addAudit('delete memory', `${item.caption || ''} ${item.id ? `(id: ${item.id})` : ''}`.trim());
+      done();
+    }catch(e){
+      // If delete fails, restore the item.
+      if(Number.isFinite(pendingDelete.indexAll) && pendingDelete.indexAll >= 0){
+        galleryItemsAll.splice(pendingDelete.indexAll, 0, item);
+      }else{
+        galleryItemsAll.unshift(item);
+      }
+      applyGalleryFilter();
+      clearPendingDelete();
+      setStatus(memoryUploadStatus, String(e?.message || e || 'Remove failed'));
+    }
+  }
+
   async function deleteMemory(item){
     const url = item?.id ? apiUrl(`/api/memories/${encodeURIComponent(item.id)}`) : null;
     if(!url){
@@ -488,21 +683,41 @@
       return;
     }
 
+    // If another delete is pending, commit it now.
+    if(pendingDelete) await commitPendingDelete();
+
     const ok = window.confirm('Remove this memory?');
     if(!ok) return;
 
-    setStatus(memoryUploadStatus, 'Removing…');
-    try{
-      const res = await fetchWithAdmin(url, { method: 'DELETE' });
-      const json = await res.json().catch(()=>null);
-      if(!res.ok) throw new Error(json?.error || 'Remove failed');
+    // Remove from UI immediately.
+    const indexAll = galleryItemsAll.indexOf(item);
+    if(indexAll >= 0) galleryItemsAll.splice(indexAll, 1);
+    applyGalleryFilter();
 
-      galleryItems = galleryItems.filter(x => x !== item);
-      renderGallery();
-      setStatus(memoryUploadStatus, 'Removed.');
-    }catch(e){
-      setStatus(memoryUploadStatus, String(e?.message || e || 'Remove failed'));
-    }
+    // Offer undo for a short window, then delete on backend.
+    pendingDelete = {
+      item,
+      url,
+      indexAll,
+      timeoutId: setTimeout(()=>{ commitPendingDelete(); }, 7000)
+    };
+
+    const safeCaption = escapeHtml(item.caption || '');
+    setStatusHtml(memoryUploadStatus, `Removed${safeCaption ? `: <b>${safeCaption}</b>` : ''}. <button id="undoDelete" class="btn btn--ghost btn--sm" type="button">Undo</button>`);
+
+    const undoBtn = memoryUploadStatus?.querySelector?.('#undoDelete');
+    undoBtn?.addEventListener('click', ()=>{
+      if(!pendingDelete) return;
+      clearTimeout(pendingDelete.timeoutId);
+
+      const idx = pendingDelete.indexAll;
+      if(Number.isFinite(idx) && idx >= 0) galleryItemsAll.splice(idx, 0, pendingDelete.item);
+      else galleryItemsAll.unshift(pendingDelete.item);
+
+      clearPendingDelete();
+      applyGalleryFilter();
+      setStatus(memoryUploadStatus, 'Undo complete.');
+    }, { once: true });
   }
 
   function renderGallery(){
@@ -518,8 +733,19 @@
       const captionText = escapeHtml(item.caption || '');
       const canRemove = Boolean(item.id);
 
+      const src = String(item.src || '');
+      const thumb = getGalleryThumbUrl(src);
+      const srcset = getGallerySrcset(src);
+
       fig.innerHTML = `
-        <img src="${escapeAttr(item.src)}" alt="${escapeAttr(item.alt || '')}" loading="lazy" />
+        <img
+          src="${escapeAttr(thumb)}"
+          ${srcset ? `srcset="${escapeAttr(srcset)}"` : ''}
+          sizes="(max-width: 640px) 100vw, (max-width: 980px) 50vw, 33vw"
+          alt="${escapeAttr(item.alt || '')}"
+          loading="lazy"
+          decoding="async"
+        />
         <figcaption class="figcap">
           <span class="figcap__text">${captionText}</span>
           ${canRemove ? '<button class="mem-del" type="button" aria-label="Remove memory">Remove</button>' : ''}
@@ -599,6 +825,7 @@
       if(memoryFile) memoryFile.value = '';
       if(memoryCaption) memoryCaption.value = '';
       setStatus(memoryUploadStatus, 'Uploaded.');
+      addAudit('upload memory', `${item.caption || file.name} ${item.id ? `(id: ${item.id})` : ''}`.trim());
     }catch(e){
       setStatus(memoryUploadStatus, String(e?.message || e || 'Upload failed'));
     }
@@ -629,12 +856,25 @@
     uploadMemory();
   });
 
+  function fmtRemaining(ms){
+    const s = Math.max(0, Math.floor(ms / 1000));
+    const m = Math.floor(s / 60);
+    const ss = String(s % 60).padStart(2, '0');
+    return `${m}:${ss}`;
+  }
+
   function syncAdminUI(){
     const key = getAdminKey();
     const unlocked = Boolean(key);
 
     if(adminState){
-      adminState.textContent = unlocked ? 'Unlocked' : 'Locked';
+      if(unlocked){
+        const ts = getAdminKeyTs() || Date.now();
+        const remaining = Math.max(0, ADMIN_TTL_MS - (Date.now() - ts));
+        adminState.textContent = `Unlocked (${fmtRemaining(remaining)})`;
+      }else{
+        adminState.textContent = 'Locked';
+      }
       adminState.classList.toggle('is-on', unlocked);
     }
 
@@ -642,6 +882,9 @@
       adminOpenBtn.textContent = unlocked ? 'Admin lock' : 'Admin unlock';
       adminOpenBtn.setAttribute('aria-pressed', String(unlocked));
     }
+
+    // If expired in background, reflect it.
+    if(!unlocked && getAdminKeyRaw()) clearAdminKey();
   }
 
   // Toggle: click to unlock (opens modal), click again to lock (clears key).
@@ -685,8 +928,39 @@
     setStatus(adminStatus, 'Cleared.');
   });
 
+  // Audit UI
+  if(adminNameInput){
+    adminNameInput.value = getAuditWho();
+    adminNameInput.addEventListener('input', ()=>{
+      setAuditWho(adminNameInput.value);
+      renderAuditLog();
+    });
+  }
+
+  auditToggleBtn?.addEventListener('click', ()=>{
+    if(!auditLogHost) return;
+    auditLogHost.hidden = !auditLogHost.hidden;
+    auditToggleBtn.textContent = auditLogHost.hidden ? 'Show audit log' : 'Hide audit log';
+    if(!auditLogHost.hidden) renderAuditLog();
+  });
+
+  auditClearBtn?.addEventListener('click', ()=>{
+    const ok = window.confirm('Clear audit log?');
+    if(!ok) return;
+    saveAudit([]);
+    renderAuditLog();
+    setStatus(adminStatus, 'Audit log cleared.');
+  });
+
   // Initialize
   syncAdminUI();
+  renderAuditLog();
+
+  // Auto-lock timer tick (keeps the UI countdown fresh)
+  setInterval(()=>{
+    // getAdminKey() will auto-clear if expired
+    syncAdminUI();
+  }, 1000);
 
   // Quotes
   const quotesHost = $('#quotesGrid');
@@ -806,6 +1080,29 @@
   if(memberModal) bindOverlay(memberModal, memberCloseBtn);
   if(lightbox) bindOverlay(lightbox, lightboxCloseBtn);
   if(adminModal) bindOverlay(adminModal, adminCloseBtn);
+
+  // PWA install prompt (Chrome/Android)
+  let deferredInstall = null;
+  window.addEventListener('beforeinstallprompt', (e)=>{
+    e.preventDefault();
+    deferredInstall = e;
+    if(pwaInstallBtn) pwaInstallBtn.hidden = false;
+  });
+
+  pwaInstallBtn?.addEventListener('click', async ()=>{
+    if(!deferredInstall) return;
+    try{
+      deferredInstall.prompt();
+      await deferredInstall.userChoice;
+    }catch{}
+    deferredInstall = null;
+    if(pwaInstallBtn) pwaInstallBtn.hidden = true;
+  });
+
+  window.addEventListener('appinstalled', ()=>{
+    deferredInstall = null;
+    if(pwaInstallBtn) pwaInstallBtn.hidden = true;
+  });
 
   // PWA SW register
   if('serviceWorker' in navigator && /^https?:/.test(location.protocol)){

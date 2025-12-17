@@ -1,4 +1,4 @@
-const CACHE_NAME = 'mv-cache-v10-lux';
+const CACHE_NAME = 'mv-cache-v11-lux';
 const ASSETS = [
   './',
   './index.html',
