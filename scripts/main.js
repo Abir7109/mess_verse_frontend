@@ -631,14 +631,33 @@
 
   function syncAdminUI(){
     const key = getAdminKey();
+    const unlocked = Boolean(key);
+
     if(adminState){
-      adminState.textContent = key ? 'Unlocked' : 'Locked';
-      adminState.classList.toggle('is-on', Boolean(key));
+      adminState.textContent = unlocked ? 'Unlocked' : 'Locked';
+      adminState.classList.toggle('is-on', unlocked);
+    }
+
+    if(adminOpenBtn){
+      adminOpenBtn.textContent = unlocked ? 'Admin lock' : 'Admin unlock';
+      adminOpenBtn.setAttribute('aria-pressed', String(unlocked));
     }
   }
 
-  adminOpenBtn?.addEventListener('click', ()=>{
+  // Toggle: click to unlock (opens modal), click again to lock (clears key).
+  // Tip: hold Shift while unlocked to open the modal and change/view the key.
+  adminOpenBtn?.addEventListener('click', (e)=>{
     if(!adminModal) return;
+
+    const key = getAdminKey();
+    const unlocked = Boolean(key);
+
+    if(unlocked && !e?.shiftKey){
+      setAdminKey('');
+      syncAdminUI();
+      return;
+    }
+
     if(adminKeyInput) adminKeyInput.value = getAdminKey();
     setStatus(adminStatus, '');
     openOverlay(adminModal);
