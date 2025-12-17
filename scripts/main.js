@@ -562,17 +562,86 @@
     return a.slice(0, Math.min(n, a.length));
   };
 
+  // Text-to-speech for quote cards
+  const canSpeak = 'speechSynthesis' in window && 'SpeechSynthesisUtterance' in window;
+
+  function speakQuote(by, text){
+    if(!canSpeak) return;
+
+    // stop any ongoing speech first
+    window.speechSynthesis.cancel();
+
+    const u = new SpeechSynthesisUtterance(`${by} says: ${text}`);
+    u.rate = 1.0;
+    u.pitch = 1.0;
+    u.volume = 1.0;
+    u.lang = 'en-US';
+
+    // Try to pick an English voice if available
+    const pickVoice = ()=>{
+      const voices = window.speechSynthesis.getVoices?.() || [];
+      const v = voices.find(v => (v.lang || '').toLowerCase().startsWith('en'));
+      if(v) u.voice = v;
+      window.speechSynthesis.speak(u);
+    };
+
+    // Some browsers load voices async
+    if((window.speechSynthesis.getVoices?.() || []).length === 0){
+      window.speechSynthesis.onvoiceschanged = ()=>{
+        window.speechSynthesis.onvoiceschanged = null;
+        pickVoice();
+      };
+    }else{
+      pickVoice();
+    }
+  }
+
   function renderQuotes(){
     if(!quotesHost) return;
     quotesHost.innerHTML = '';
     const chosen = pickN(DATA.quotes || [], 4);
     chosen.forEach(q=>{
       const el = document.createElement('div');
-      el.className = 'quote';
+      el.className = 'quote quote--speak';
+      el.tabIndex = 0;
+      el.setAttribute('role','button');
+      el.setAttribute('aria-label', canSpeak
+        ? `Play quote by ${q.by}`
+        : `Quote by ${q.by}`
+      );
+
+      const by = String(q.by || '').trim();
+      const text = String(q.text || '').trim();
+
       el.innerHTML = `
-        <p>“${escapeHtml(q.text)}”</p>
-        <footer>— ${escapeHtml(q.by)}</footer>
+        <div class="quote__top">
+          <p>“${escapeHtml(text)}”</p>
+          ${canSpeak ? '<button class="quote__speak" type="button" aria-label="Play voice">Listen</button>' : ''}
+        </div>
+        <footer>— ${escapeHtml(by)}</footer>
       `;
+
+      const trigger = ()=>{
+        if(!canSpeak) return;
+        if(!text) return;
+        speakQuote(by || 'Someone', text);
+      };
+
+      el.addEventListener('click', trigger);
+      el.addEventListener('keydown', (e)=>{
+        if(e.key === 'Enter' || e.key === ' '){
+          e.preventDefault();
+          trigger();
+        }
+      });
+
+      const btn = el.querySelector('.quote__speak');
+      btn?.addEventListener('click', (e)=>{
+        e.preventDefault();
+        e.stopPropagation();
+        trigger();
+      });
+
       quotesHost.appendChild(el);
     });
   }
